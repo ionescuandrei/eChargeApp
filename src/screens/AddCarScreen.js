@@ -12,6 +12,9 @@ import { Text, TextInput } from "@react-native-material/core";
 import { LinearGradient } from "expo-linear-gradient";
 import { useNavigation } from "@react-navigation/native";
 import { useState } from "react";
+import { doc, setDoc } from "firebase/firestore";
+import { db } from "../firebase-config";
+
 const AddCarScreen = () => {
   const [data, setData] = useState({
     marca: "",
@@ -64,6 +67,20 @@ const AddCarScreen = () => {
       ...data,
       vehicleSpeed: val,
     });
+  };
+  const onSubmit = () => {
+    // Add a new document in collection "cities"
+
+    setDoc(doc(db, "cars", data.marca + " " + data.model), {
+      marca: data.marca,
+      model: data.model,
+      year: data.year,
+      battCapacity: data.battCapacity,
+      chargeCapacity: data.chargeCapacity,
+      plugType: data.plugType,
+      vehicleSpeed: data.vehicleSpeed,
+    });
+    alert("Db save");
   };
   return (
     <View style={styles.container}>
@@ -134,7 +151,7 @@ const AddCarScreen = () => {
           </View>
 
           <TouchableOpacity
-            onPress={() => navigation.goBack()}
+            onPress={onSubmit}
             style={[
               styles.signIn,
               {

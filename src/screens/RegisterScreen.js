@@ -13,7 +13,7 @@ import { Text, TextInput } from "@react-native-material/core";
 import { LinearGradient } from "expo-linear-gradient";
 
 import { createUserWithEmailAndPassword } from "firebase/auth";
-import auth from "../firebase-config";
+import { auth } from "../firebase-config";
 import FontAwesome from "react-native-vector-icons/FontAwesome";
 import Feather from "react-native-vector-icons/Feather";
 import { emailValidator } from "../utility/validation";

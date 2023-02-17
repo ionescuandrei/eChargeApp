@@ -14,7 +14,7 @@ import Feather from "react-native-vector-icons/Feather";
 import { useTheme, useNavigation } from "@react-navigation/native";
 import { emailValidator } from "../utility/validation";
 import { signInWithEmailAndPassword } from "firebase/auth";
-import auth from "../firebase-config";
+import { auth } from "../firebase-config";
 const LoginScreen = () => {
   const [data, setData] = useState({
     email: "",

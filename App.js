@@ -6,7 +6,7 @@ import AuthNav from "./src/navigation/AuthNav";
 import store from "./src/redux/store";
 import { Provider } from "react-redux";
 import { onAuthStateChanged } from "firebase/auth";
-import auth from "./src/firebase-config";
+import { auth } from "./src/firebase-config";
 import { createNativeStackNavigator } from "@react-navigation/native-stack";
 
 import { Ionicons } from "@expo/vector-icons";

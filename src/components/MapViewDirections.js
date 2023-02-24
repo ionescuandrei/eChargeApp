@@ -305,7 +305,7 @@ class MapViewDirections extends Component {
 
         if (json.routes.length) {
           const route = json.routes[0];
-
+          console.log(route);
           return Promise.resolve({
             distance:
               route.legs.reduce((carry, curr) => {

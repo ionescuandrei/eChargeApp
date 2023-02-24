@@ -13,17 +13,90 @@ import { LinearGradient } from "expo-linear-gradient";
 import { useNavigation } from "@react-navigation/native";
 import { useState } from "react";
 import { doc, setDoc } from "firebase/firestore";
-import { db } from "../firebase-config";
+import { db } from "../../firebase-config";
 
 const AddCarScreen = () => {
   const [data, setData] = useState({
-    marca: "",
-    model: "",
-    year: 2005,
-    battCapacity: 0,
-    chargeCapacity: 0,
-    plugType: "",
-    vehicleSpeed: 0,
+    naming: {
+      make: "",
+      model: "",
+      version: "",
+      edition: "",
+    },
+    connectors: {
+      standard: "",
+      power: 0,
+      time: null,
+      speed: 0,
+    },
+    battery: {
+      usable_kwh: 0,
+      full_kwh: 0,
+    },
+    body: {
+      seats: 5,
+    },
+    performance: {
+      acceleration: 0,
+      top_speed: 0,
+    },
+    range: {
+      provider_is_estimated: 0,
+      chargetrip_range: {
+        best: 0,
+        worst: 0,
+      },
+    },
+    media: {
+      url: "",
+    },
+
+    // "naming": {
+    //   "make": "Audi",
+    //   "model": "e-tron",
+    //   "version": "55 quattro",
+    //   "edition": null,
+    //   "chargetrip_version": "55 quattro (2019 - 2020)"
+    // },
+    // "connectors": [
+    //   {
+    //     "standard": "IEC_62196_T2",
+    //     "power": 11,
+    //     "time": 555,
+    //     "speed": 39
+    //   },
+    //   {
+    //     "standard": "IEC_62196_T2_COMBO",
+    //     "power": 146,
+    //     "time": 26,
+    //     "speed": 590
+    //   }
+    // ],
+    // "adapters": [],
+    // "battery": {
+    //   "usable_kwh": 86.5,
+    //   "full_kwh": 95
+    // },
+    // "body": {
+    //   "seats": 5
+    // },
+    // "range": {
+    //   "chargetrip_range": {
+    //     "best": 442,
+    //     "worst": 381
+    //   }
+    // },
+    // "media": {
+    //   "image": {
+    //     "id": "637cfd94fff76be0b355b82c",
+    //     "type": "image",
+    //     "url": "https://cars.chargetrip.io/637cfd94fff76be0b355b82c.png",
+    //     "height": 400,
+    //     "width": 697,
+    //     "thumbnail_url": "https://cars.chargetrip.io/637cfd94fff76be0b355b82c-eb92fb5e6c7433d5e31dbe682f7ae922e78a232c.png",
+    //     "thumbnail_height": 150,
+    //     "thumbnail_width": 262
+    //   },
   });
   const navigate = useNavigation();
   const handleMarca = (val) => {

@@ -1,8 +1,8 @@
 import { createBottomTabNavigator } from "@react-navigation/bottom-tabs";
 import { Ionicons } from "@expo/vector-icons";
 import MapScreen from "../screens/MapScreen";
-import AccountScreen from "../screens/AddCarScreen";
-import AddCarScreen from "../screens/AddCarScreen";
+import AccountScreen from "../screens/Drawer/AddCar";
+import AddCarScreen from "../screens/Drawer/AddCar";
 
 const Tab = createBottomTabNavigator();
 
@@ -28,7 +28,11 @@ const TabNav = () => {
         tabBarInactiveTintColor: "gray",
       })}
     >
-      <Tab.Screen name="Home" component={MapScreen} />
+      <Tab.Screen
+        name="Home"
+        component={MapScreen}
+        options={{ headerShown: false }}
+      />
       <Tab.Screen
         name="AddCarScreen"
         component={AddCarScreen}

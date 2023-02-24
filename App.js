@@ -8,6 +8,8 @@ import { Provider } from "react-redux";
 import { onAuthStateChanged } from "firebase/auth";
 import { auth } from "./src/firebase-config";
 import { createNativeStackNavigator } from "@react-navigation/native-stack";
+import "react-native-gesture-handler";
+import Drawer from "./src/navigation/DrawerNav";
 
 import { Ionicons } from "@expo/vector-icons";
 import { useEffect, useState } from "react";
@@ -38,7 +40,7 @@ export default function App() {
           {!isSignedIn ? (
             <Stack.Screen name="Auth" component={AuthNav} />
           ) : (
-            <Stack.Screen name="TabNav" component={TabNav} />
+            <Stack.Screen name="DrawerNav" component={Drawer} />
           )}
         </Stack.Navigator>
       </NavigationContainer>

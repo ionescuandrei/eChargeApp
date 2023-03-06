@@ -17,141 +17,112 @@ import { db } from "../../firebase-config";
 
 const AddCarScreen = () => {
   const [data, setData] = useState({
-    naming: {
-      make: "",
-      model: "",
-      version: "",
-      edition: "",
-    },
-    connectors: {
-      standard: "",
-      power: 0,
-      time: null,
-      speed: 0,
-    },
-    battery: {
-      usable_kwh: 0,
-      full_kwh: 0,
-    },
-    body: {
-      seats: 5,
-    },
-    performance: {
-      acceleration: 0,
-      top_speed: 0,
-    },
-    range: {
-      provider_is_estimated: 0,
-      chargetrip_range: {
-        best: 0,
-        worst: 0,
-      },
-    },
-    media: {
-      url: "",
-    },
-
-    // "naming": {
-    //   "make": "Audi",
-    //   "model": "e-tron",
-    //   "version": "55 quattro",
-    //   "edition": null,
-    //   "chargetrip_version": "55 quattro (2019 - 2020)"
-    // },
-    // "connectors": [
-    //   {
-    //     "standard": "IEC_62196_T2",
-    //     "power": 11,
-    //     "time": 555,
-    //     "speed": 39
-    //   },
-    //   {
-    //     "standard": "IEC_62196_T2_COMBO",
-    //     "power": 146,
-    //     "time": 26,
-    //     "speed": 590
-    //   }
-    // ],
-    // "adapters": [],
-    // "battery": {
-    //   "usable_kwh": 86.5,
-    //   "full_kwh": 95
-    // },
-    // "body": {
-    //   "seats": 5
-    // },
-    // "range": {
-    //   "chargetrip_range": {
-    //     "best": 442,
-    //     "worst": 381
-    //   }
-    // },
-    // "media": {
-    //   "image": {
-    //     "id": "637cfd94fff76be0b355b82c",
-    //     "type": "image",
-    //     "url": "https://cars.chargetrip.io/637cfd94fff76be0b355b82c.png",
-    //     "height": 400,
-    //     "width": 697,
-    //     "thumbnail_url": "https://cars.chargetrip.io/637cfd94fff76be0b355b82c-eb92fb5e6c7433d5e31dbe682f7ae922e78a232c.png",
-    //     "thumbnail_height": 150,
-    //     "thumbnail_width": 262
-    //   },
+    battery: "",
+    topSpeed: 0,
+    range: 0,
+    url: "",
+  });
+  const [naming, setNaming] = useState({
+    make: "",
+    model: "",
+    version: "",
+    edition: "",
+  });
+  const [connector, setConector] = useState({
+    standard: "",
+    power: 0,
+    time: null,
+    speed: 0,
+  });
+  const [connector2, setConector2] = useState({
+    standard: "",
+    power: 0,
+    time: null,
+    speed: 0,
   });
   const navigate = useNavigation();
   const handleMarca = (val) => {
-    setData({
-      ...data,
-      marca: val,
-    });
-  };
-  const handleModel = (val) => {
-    setData({
-      ...data,
+    setNaming({
+      ...naming,
       model: val,
     });
   };
-  const handleYear = (val) => {
-    setData({
-      ...data,
-      year: val,
+  const handleModel = (val) => {
+    setNaming({
+      ...naming,
+      make: val,
+    });
+  };
+  const handleVersion = (val) => {
+    setNaming({
+      ...naming,
+      version: val,
+    });
+  };
+  const handleEdition = (val) => {
+    setNaming({
+      ...naming,
+      edition: val,
+    });
+  };
+  const handleConnectionStandard = (val) => {
+    setConector({
+      ...connector,
+      standard: val,
+    });
+  };
+  const handlePower = (val) => {
+    setConector({
+      ...connector,
+      power: val,
+    });
+  };
+  const handleTime = (val) => {
+    setConector({
+      ...connector,
+      time: val,
+    });
+  };
+  const handleSpeed = (val) => {
+    setConector({
+      ...connector,
+      speed: val,
     });
   };
   const handleBattery = (val) => {
     setData({
       ...data,
-      battCapacity: val,
+      battery: val,
     });
   };
-  const handleCharging = (val) => {
+  const handleTopSpeed = (val) => {
     setData({
       ...data,
-      chargeCapacity: val,
+      topSpeed: val,
     });
   };
-  const handlePlug = (val) => {
+  const handleRange = (val) => {
     setData({
       ...data,
-      plugType: val,
+      range: val,
     });
   };
-  const handleSpeed = (val) => {
+  const handleUrl = (val) => {
     setData({
       ...data,
-      vehicleSpeed: val,
+      url: val,
     });
   };
   const onSubmit = () => {
     // Add a new document in collection "cities"
 
-    setDoc(doc(db, "cars", data.marca + " " + data.model), {
-      marca: data.marca,
-      model: data.model,
-      year: data.year,
-      battCapacity: data.battCapacity,
-      chargeCapacity: data.chargeCapacity,
-      plugType: data.plugType,
-      vehicleSpeed: data.vehicleSpeed,
+    setDoc(doc(db, "cars", naming.make + " " + naming.model), {
+      naming: naming,
+      connectors: connector,
+      battery: data.battery,
+      topSpeed: data.topSpeed,
+      range: data.range,
+      url: data.url,
     });
     alert("Db save");
   };
@@ -183,16 +154,56 @@ const AddCarScreen = () => {
 
           <View style={styles.action}>
             <TextInput
-              placeholder="Year"
+              placeholder="Version"
               style={styles.textInput}
               autoCapitalize="none"
-              onChangeText={(val) => handleYear(val)}
+              onChangeText={(val) => handleVersion(val)}
             />
           </View>
 
           <View style={styles.action}>
             <TextInput
-              placeholder="Battery Capacity"
+              placeholder="Edition"
+              style={styles.textInput}
+              autoCapitalize="none"
+              onChangeText={(val) => handleEdition(val)}
+            />
+          </View>
+          <View style={styles.action}>
+            <TextInput
+              placeholder="Standard"
+              style={styles.textInput}
+              autoCapitalize="none"
+              onChangeText={(val) => handleConnectionStandard(val)}
+            />
+          </View>
+          <View style={styles.action}>
+            <TextInput
+              placeholder="Power"
+              style={styles.textInput}
+              autoCapitalize="none"
+              onChangeText={(val) => handlePower(val)}
+            />
+          </View>
+          <View style={styles.action}>
+            <TextInput
+              placeholder="Time "
+              style={styles.textInput}
+              autoCapitalize="none"
+              onChangeText={(val) => handleTime(val)}
+            />
+          </View>
+          <View style={styles.action}>
+            <TextInput
+              placeholder="Speed"
+              style={styles.textInput}
+              autoCapitalize="none"
+              onChangeText={(val) => handleSpeed(val)}
+            />
+          </View>
+          <View style={styles.action}>
+            <TextInput
+              placeholder="Baterry"
               style={styles.textInput}
               autoCapitalize="none"
               onChangeText={(val) => handleBattery(val)}
@@ -200,26 +211,26 @@ const AddCarScreen = () => {
           </View>
           <View style={styles.action}>
             <TextInput
-              placeholder="Charging Capacity"
+              placeholder="TopSpeed"
               style={styles.textInput}
               autoCapitalize="none"
-              onChangeText={(val) => handleCharging(val)}
+              onChangeText={(val) => handleTopSpeed(val)}
             />
           </View>
           <View style={styles.action}>
             <TextInput
-              placeholder="Plug Type"
+              placeholder="Range"
               style={styles.textInput}
               autoCapitalize="none"
-              onChangeText={(val) => handlePlug(val)}
+              onChangeText={(val) => handleRange(val)}
             />
           </View>
           <View style={styles.action}>
             <TextInput
-              placeholder="Vehicle Max Speed "
+              placeholder="Url"
               style={styles.textInput}
               autoCapitalize="none"
-              onChangeText={(val) => handleSpeed(val)}
+              onChangeText={(val) => handleUrl(val)}
             />
           </View>
 

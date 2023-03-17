@@ -7,23 +7,16 @@ import {
   Image,
   Dimensions,
   TouchableOpacity,
-  Linking,
 } from "react-native";
-import MapView, { Marker } from "react-native-maps";
-import * as Location from "expo-location";
+import MapView from "react-native-maps";
 import MapDirections from "../components/MapDirections";
-import TouchText from "../components/TouchText";
-import { colors, device, fonts } from "../constants";
 
 import { collection, getDocs } from "firebase/firestore";
 import { db } from "../firebase-config";
-const { PROVIDER_GOOGLE } = MapView;
 
 // Using a local version here because we need it to import MapView from 'expo'
 import MapViewDirections from "../components/MapViewDirections";
-const { width, height } = Dimensions.get("window");
-const CARD_HEIGHT = height / 4;
-const CARD_WIDTH = CARD_HEIGHT - 50;
+
 export default class MapScreen extends Component {
   constructor(props) {
     super(props);
@@ -32,9 +25,7 @@ export default class MapScreen extends Component {
         latitude: 44.3077568,
         longitude: 23.7967414,
         latitudeDelta: 0.0122,
-        longitudeDelta:
-          (Dimensions.get("window").width / Dimensions.get("window").height) *
-          0.0122,
+        longitudeDelta: 0.0122,
       },
       openIndex: null,
       render: false,
@@ -53,16 +44,16 @@ export default class MapScreen extends Component {
 
     this.getLocationHandler = this.getLocationHandler.bind(this);
     this.getWithinDistance = this.getWithinDistance.bind(this);
-    this.getStations = this.getStations.bind(this);
   }
 
-  componentDidMount() {
-    this.getLocationHandler();
-    this.getStations();
+  componentWillMount() {
     this.index = 0;
     this.images = {};
     this.animation = new Animated.Value(0);
     this.opacityAnimation = new Animated.Value(0);
+  }
+
+  componentDidMount() {
     this.animation.addListener(({ value }) => {
       let index = Math.floor(value / CARD_WIDTH + 0.3); // animate 30% away from landing on the next item
       if (index >= this.state.markers.length) {
@@ -75,10 +66,10 @@ export default class MapScreen extends Component {
       this.regionTimeout = setTimeout(() => {
         if (this.index !== index) {
           this.index = index;
-          const { coordinates } = this.state.markers[index];
+          const { location } = this.state.markers[index];
           this.map.animateToRegion(
             {
-              ...coordinates,
+              ...location,
               latitudeDelta: this.state.region.latitudeDelta,
               longitudeDelta: this.state.region.longitudeDelta,
             },
@@ -90,19 +81,17 @@ export default class MapScreen extends Component {
   }
 
   componentDidAppear() {
+    this.getStations();
     this.getLocationHandler();
   }
   getStations = async () => {
+    const sta = [];
     const querySnapshot = await getDocs(collection(db, "stations"));
     querySnapshot.forEach((doc) => {
-      const ob = doc.data();
-      this.setState((previousState) => ({
-        ...previousState,
-        stations: [...previousState.stations, ob],
-      }));
+      sta.push(doc.data);
+      console.log(doc.id, " => ", doc.data());
     });
-
-    console.log(this.state.stations);
+    this.setState({ stations: sta });
   };
   getWithinDistance = () => {
     let latlng = {};
@@ -112,8 +101,8 @@ export default class MapScreen extends Component {
     var lon1 = this.state.region.longitude;
 
     for (var i = 0; i < this.state.stations.length; i++) {
-      var lat2 = this.state.stations[i].coordinates.latitude;
-      var lon2 = this.state.stations[i].coordinates.longitude;
+      var lat2 = this.state.stations[i].location.latitude;
+      var lon2 = this.state.stations[i].location.longitude;
       var R = 6371;
       var dLat = (lat2 - lat1) * (Math.PI / 180);
       var dLon = (lon2 - lon1) * (Math.PI / 180);
@@ -139,25 +128,25 @@ export default class MapScreen extends Component {
     });
     console.log("selcted markers", selectedMarker);
   };
-  getLocationHandler = async () => {
-    let { status } = await Location.requestForegroundPermissionsAsync();
-    if (status !== "granted") {
-      setErrorMsg("Permission to access location was denied");
-      return;
-    }
-    let pos = await Location.getCurrentPositionAsync({});
-
-    this.setState((prevState) => {
-      return {
-        show: true,
-        region: {
-          ...prevState.region,
-          latitude: pos.coords.latitude,
-          longitude: pos.coords.longitude,
-        },
-      };
-    });
-    this.getWithinDistance();
+  getLocationHandler = () => {
+    navigator.geolocation.getCurrentPosition(
+      (pos) => {
+        this.setState((prevState) => {
+          return {
+            region: {
+              ...prevState.region,
+              latitude: pos.coords.latitude,
+              longitude: pos.coords.longitude,
+            },
+          };
+        });
+        this.getWithinDistance();
+      },
+      (err) => {
+        console.log(err);
+        alert("Fetching the location faild");
+      }
+    );
   };
   navigationButtonPressed({ buttonId }) {
     this.getLocationHandler();
@@ -211,50 +200,32 @@ export default class MapScreen extends Component {
 
     return (
       <View style={styles.container}>
-        {this.state.show && (
-          <MapView
-            ref={(map) => (this.map = map)}
-            followsUserLocation
-            provider={PROVIDER_GOOGLE}
-            initialRegion={this.state.region}
-            style={styles.container}
-            showsUserLocation
-          >
-            {this.state.markers.map((marker, index) => {
-              const scaleStyle = {
-                transform: [
-                  {
-                    scale: interpolations[index].scale,
-                  },
-                ],
-              };
-              const opacityStyle = {
-                opacity: interpolations[index].opacity,
-              };
-              return (
-                <Marker key={index} coordinate={marker.coordinates}>
-                  <Animated.View style={[styles.markerWrap, opacityStyle]}>
-                    <Animated.View style={[styles.ring, scaleStyle]} />
-                    <View style={styles.marker} />
-                  </Animated.View>
-                </Marker>
-              );
-            })}
-          </MapView>
-        )}
-        {!this.state.show && (
-          <View style={styles.containerNoLocation}>
-            <Text style={styles.textLocationNeeded}>
-              We need your location data...
-            </Text>
-            <TouchText
-              onPress={() => Linking.openURL("app-settings:")}
-              style={styles.btnGoTo}
-              styleText={styles.btnGoToText}
-              text="Go To Permissions"
-            />
-          </View>
-        )}
+        <MapView
+          ref={(map) => (this.map = map)}
+          initialRegion={this.props.region}
+          style={styles.container}
+        >
+          {this.state.markers.map((marker, index) => {
+            const scaleStyle = {
+              transform: [
+                {
+                  scale: interpolations[index].scale,
+                },
+              ],
+            };
+            const opacityStyle = {
+              opacity: interpolations[index].opacity,
+            };
+            return (
+              <MapView.Marker key={index} coordinate={marker.location}>
+                <Animated.View style={[styles.markerWrap, opacityStyle]}>
+                  <Animated.View style={[styles.ring, scaleStyle]} />
+                  <View style={styles.marker} />
+                </Animated.View>
+              </MapView.Marker>
+            );
+          })}
+        </MapView>
         <Animated.ScrollView
           horizontal
           scrollEventThrottle={16}
@@ -378,28 +349,5 @@ const styles = StyleSheet.create({
     position: "absolute",
     borderWidth: 1,
     borderColor: "rgba(130,4,150, 0.5)",
-  },
-  containerNoLocation: {
-    alignItems: "center",
-    height: device.height,
-    justifyContent: "center",
-    position: "absolute",
-    width: device.width,
-  },
-  textLocationNeeded: {
-    fontFamily: fonts.uberMedium,
-    fontSize: 16,
-    marginBottom: 16,
-  },
-  btnGoTo: {
-    backgroundColor: colors.black,
-    borderRadius: 3,
-    paddingHorizontal: 16,
-    paddingVertical: 8,
-  },
-  btnGoToText: {
-    color: colors.white,
-    fontFamily: fonts.uberMedium,
-    fontSize: 16,
   },
 });

@@ -12,6 +12,8 @@ import MaterialCommunityIcons from "react-native-vector-icons/MaterialCommunityI
 import AddCarScreen from "../screens/Drawer/AddCar";
 import AddConnector from "../screens/Drawer/AddConnector";
 import AddStation from "../screens/Drawer/AddStation";
+import { signOut } from "firebase/auth";
+import { auth } from "../firebase-config";
 const Drawer = createDrawerNavigator();
 
 const DrawerNavigator = () => {
@@ -30,6 +32,10 @@ const DrawerNavigator = () => {
           <Text style={{ color: "#fff" }}>eCharge</Text>
         </View>
         <DrawerItemList {...props} />
+        <DrawerItem
+          label="Sign Out"
+          onPress={() => signOut(auth).then(() => alert("signed out"))}
+        />
       </DrawerContentScrollView>
     );
   };

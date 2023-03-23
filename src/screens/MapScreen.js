@@ -14,6 +14,7 @@ import * as Location from "expo-location";
 import MapDirections from "../components/MapDirections";
 import TouchText from "../components/TouchText";
 import { colors, device, fonts } from "../constants";
+import axios from "axios";
 
 import { collection, getDocs } from "firebase/firestore";
 import { db } from "../firebase-config";
@@ -38,7 +39,7 @@ export default class MapScreen extends Component {
       },
       openIndex: null,
       render: false,
-      show: false,
+      show: true,
       overlayImage: false,
       coords: {
         left: new Animated.Value(0),
@@ -54,11 +55,11 @@ export default class MapScreen extends Component {
     this.getLocationHandler = this.getLocationHandler.bind(this);
     this.getWithinDistance = this.getWithinDistance.bind(this);
     this.getStations = this.getStations.bind(this);
+    this.getStations2 = this.getStations2.bind(this);
   }
 
   componentDidMount() {
     this.getLocationHandler();
-    this.getStations();
     this.index = 0;
     this.images = {};
     this.animation = new Animated.Value(0);
@@ -92,6 +93,27 @@ export default class MapScreen extends Component {
   componentDidAppear() {
     this.getLocationHandler();
   }
+  getStations2(lat, long) {
+    let sta = {};
+    axios
+      .get(
+        "https://api.tomtom.com/search/2/nearbySearch/.json?key=WJ8s7PREG7SxRMtQTZaS6c0kyLjO5lfa&lat=" +
+          lat +
+          "&lon=" +
+          long +
+          "&radius=10000&categorySet=7309"
+      )
+      .then(function (response) {
+        // handle success
+        sta = response.data;
+      })
+      .catch(function (error) {
+        // handle error
+        console.log(error);
+      });
+    this.setState({ stations: sta.results });
+    console.log("stations", sta.results);
+  }
   getStations = async () => {
     const querySnapshot = await getDocs(collection(db, "stations"));
     querySnapshot.forEach((doc) => {
@@ -101,8 +123,6 @@ export default class MapScreen extends Component {
         stations: [...previousState.stations, ob],
       }));
     });
-
-    console.log(this.state.stations);
   };
   getWithinDistance = () => {
     let latlng = {};
@@ -141,11 +161,13 @@ export default class MapScreen extends Component {
   };
   getLocationHandler = async () => {
     let { status } = await Location.requestForegroundPermissionsAsync();
+
     if (status !== "granted") {
       setErrorMsg("Permission to access location was denied");
       return;
     }
     let pos = await Location.getCurrentPositionAsync({});
+    // let pos = await Location.getLastKnownPositionAsync();
 
     this.setState((prevState) => {
       return {
@@ -157,6 +179,8 @@ export default class MapScreen extends Component {
         },
       };
     });
+    console.log("Here show. ", this.state.show);
+    this.getStations2(this.state.region.latitude, this.state.region.longitude);
     this.getWithinDistance();
   };
   navigationButtonPressed({ buttonId }) {
@@ -240,6 +264,7 @@ export default class MapScreen extends Component {
                 </Marker>
               );
             })}
+            {/* <MapDirections /> */}
           </MapView>
         )}
         {!this.state.show && (
@@ -248,7 +273,7 @@ export default class MapScreen extends Component {
               We need your location data...
             </Text>
             <TouchText
-              onPress={() => Linking.openURL("app-settings:")}
+              onPress={() => this.setState({ show: true })}
               style={styles.btnGoTo}
               styleText={styles.btnGoToText}
               text="Go To Permissions"

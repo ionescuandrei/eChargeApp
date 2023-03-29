@@ -97,7 +97,7 @@ const LoginScreen = () => {
         // Signed in
         const user = userCredential.user;
         console.log(user);
-        navigation.navigate("TabNav");
+
         // ...
       })
       .catch((error) => {

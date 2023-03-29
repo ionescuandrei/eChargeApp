@@ -103,16 +103,14 @@ export default class MapScreen extends Component {
           long +
           "&radius=10000&categorySet=7309"
       )
-      .then(function (response) {
-        // handle success
-        sta = response.data;
+      .then((res) => {
+        const stations = res.data.results;
+        this.setState({ stations });
       })
       .catch(function (error) {
         // handle error
         console.log(error);
       });
-    this.setState({ stations: sta.results });
-    console.log("stations", sta.results);
   }
   getStations = async () => {
     const querySnapshot = await getDocs(collection(db, "stations"));
@@ -166,22 +164,32 @@ export default class MapScreen extends Component {
       setErrorMsg("Permission to access location was denied");
       return;
     }
-    let pos = await Location.getCurrentPositionAsync({});
-    // let pos = await Location.getLastKnownPositionAsync();
+    await Location.getCurrentPositionAsync({
+      enableHighAccuracy: true,
+      maximumAge: 10000,
+      timeout: 5000,
+    })
+      .then((res) =>
+        this.setState((prevState) => {
+          return {
+            show: true,
+            region: {
+              ...prevState.region,
+              latitude: res.coords.latitude,
+              longitude: res.coords.longitude,
+            },
+          };
+        })
+      )
+      .catch((e) => console.log(e)),
+      this.map.animateToRegion({
+        ...this.state.region,
+        latitude: this.state.region.latitude,
+        longitude: this.state.region.longitude,
+      });
 
-    this.setState((prevState) => {
-      return {
-        show: true,
-        region: {
-          ...prevState.region,
-          latitude: pos.coords.latitude,
-          longitude: pos.coords.longitude,
-        },
-      };
-    });
-    console.log("Here show. ", this.state.show);
     this.getStations2(this.state.region.latitude, this.state.region.longitude);
-    this.getWithinDistance();
+    // this.getWithinDistance();
   };
   navigationButtonPressed({ buttonId }) {
     this.getLocationHandler();
@@ -212,8 +220,7 @@ export default class MapScreen extends Component {
     // });
   };
   render() {
-    console.log("props.selectedPlace", this.state.markers);
-    console.log("props.region", this.state.region);
+    console.log("Here station. ", this.state.stations);
     const interpolations = this.state.markers.map((marker, index) => {
       const inputRange = [
         (index - 1) * CARD_WIDTH,
@@ -239,10 +246,10 @@ export default class MapScreen extends Component {
           <MapView
             ref={(map) => (this.map = map)}
             followsUserLocation
+            showsUserLocation={true}
             provider={PROVIDER_GOOGLE}
             initialRegion={this.state.region}
             style={styles.container}
-            showsUserLocation
           >
             {this.state.markers.map((marker, index) => {
               const scaleStyle = {

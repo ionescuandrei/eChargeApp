@@ -43,7 +43,7 @@ export default function App() {
         // https://firebase.google.com/docs/reference/js/firebase.User
         const uid = user.uid;
         setIsSignIn(true);
-        console.log(user);
+
         // ...
       } else {
         setIsSignIn(false);

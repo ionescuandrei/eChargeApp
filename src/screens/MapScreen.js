@@ -1,12 +1,13 @@
 import React, { Component } from "react";
+
 import {
   View,
   Text,
   StyleSheet,
   Animated,
-  Image,
   Dimensions,
   TouchableOpacity,
+  Image,
   Linking,
 } from "react-native";
 import MapView, { Marker } from "react-native-maps";
@@ -15,6 +16,7 @@ import MapDirections from "../components/MapDirections";
 import TouchText from "../components/TouchText";
 import { colors, device, fonts } from "../constants";
 import axios from "axios";
+import Icon from "@expo/vector-icons/FontAwesome5";
 
 import { collection, getDocs } from "firebase/firestore";
 import { db } from "../firebase-config";
@@ -32,10 +34,10 @@ export default class MapScreen extends Component {
       region: {
         latitude: 44.3077568,
         longitude: 23.7967414,
-        latitudeDelta: 0.0122,
+        latitudeDelta: 0.0422,
         longitudeDelta:
           (Dimensions.get("window").width / Dimensions.get("window").height) *
-          0.0122,
+          0.0422,
       },
       openIndex: null,
       render: false,
@@ -53,7 +55,7 @@ export default class MapScreen extends Component {
     };
 
     this.getLocationHandler = this.getLocationHandler.bind(this);
-    this.getWithinDistance = this.getWithinDistance.bind(this);
+    // this.getWithinDistance = this.getWithinDistance.bind(this);
     this.getStations = this.getStations.bind(this);
     this.getStations2 = this.getStations2.bind(this);
   }
@@ -88,11 +90,9 @@ export default class MapScreen extends Component {
         }
       }, 10);
     });
+    // this.getWithinDistance();
   }
 
-  componentDidAppear() {
-    this.getLocationHandler();
-  }
   getStations2(lat, long) {
     let sta = {};
     axios
@@ -107,6 +107,7 @@ export default class MapScreen extends Component {
         const stations = res.data.results;
         this.setState({ stations });
       })
+
       .catch(function (error) {
         // handle error
         console.log(error);
@@ -122,74 +123,83 @@ export default class MapScreen extends Component {
       }));
     });
   };
-  getWithinDistance = () => {
-    let latlng = {};
-    let newData = null;
-    var selectedMarker = [];
-    var lat1 = this.state.region.latitude;
-    var lon1 = this.state.region.longitude;
 
-    for (var i = 0; i < this.state.stations.length; i++) {
-      var lat2 = this.state.stations[i].coordinates.latitude;
-      var lon2 = this.state.stations[i].coordinates.longitude;
-      var R = 6371;
-      var dLat = (lat2 - lat1) * (Math.PI / 180);
-      var dLon = (lon2 - lon1) * (Math.PI / 180);
-      var a =
-        Math.sin(dLat / 2) * Math.sin(dLat / 2) +
-        Math.cos(lat1 * (Math.PI / 180)) *
-          Math.cos(lat2 * (Math.PI / 180)) *
-          Math.sin(dLon / 2) *
-          Math.sin(dLon / 2);
-      var c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
-      var d = R * c;
-      if (d <= 2.0) {
-        latlng = {
-          latitude: lat2,
-          longitude: lon2,
-        };
-        selectedMarker.push(this.state.stations[i]);
-      }
-    }
+  // getWithinDistance = () => {
+  //   var selectedMarker = [];
+  //   var lat1 = this.state.region.latitude;
+  //   var lon1 = this.state.region.longitude;
 
-    this.setState({
-      markers: selectedMarker,
-    });
-    console.log("selcted markers", selectedMarker);
-  };
+  //   for (var i = 0; i < this.state.stations.length; i++) {
+  //     var lat2 = this.state.stations[i].position.lat;
+  //     var lon2 = this.state.stations[i].position.lon;
+  //     var R = 6371;
+  //     var dLat = (lat2 - lat1) * (Math.PI / 180);
+  //     var dLon = (lon2 - lon1) * (Math.PI / 180);
+  //     var a =
+  //       Math.sin(dLat / 2) * Math.sin(dLat / 2) +
+  //       Math.cos(lat1 * (Math.PI / 180)) *
+  //         Math.cos(lat2 * (Math.PI / 180)) *
+  //         Math.sin(dLon / 2) *
+  //         Math.sin(dLon / 2);
+  //     var c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+  //     var d = R * c;
+  //   }
+
+  //   this.setState({
+  //     markers: selectedMarker,
+  //   });
+  //   console.log("selcted markers", selectedMarker);
+  // };
   getLocationHandler = async () => {
     let { status } = await Location.requestForegroundPermissionsAsync();
 
     if (status !== "granted") {
-      setErrorMsg("Permission to access location was denied");
+      console.log("nit granted");
       return;
     }
-    await Location.getCurrentPositionAsync({
-      enableHighAccuracy: true,
-      maximumAge: 10000,
-      timeout: 5000,
-    })
-      .then((res) =>
-        this.setState((prevState) => {
-          return {
-            show: true,
-            region: {
-              ...prevState.region,
-              latitude: res.coords.latitude,
-              longitude: res.coords.longitude,
-            },
-          };
-        })
-      )
-      .catch((e) => console.log(e)),
-      this.map.animateToRegion({
-        ...this.state.region,
-        latitude: this.state.region.latitude,
-        longitude: this.state.region.longitude,
+
+    let pos = await Location.getLastKnownPositionAsync();
+    console.log("getLocation", pos);
+    if (pos == null) {
+      await Location.getCurrentPositionAsync({
+        enableHighAccuracy: true,
+        maximumAge: 10000,
+        timeout: 5000,
+      })
+        .then((res) =>
+          this.setState((prevState) => {
+            return {
+              show: true,
+              region: {
+                ...prevState.region,
+                latitude: res.coords.latitude,
+                longitude: res.coords.longitude,
+              },
+            };
+          })
+        )
+        .catch((e) => console.log(e));
+    } else {
+      this.setState((prevState) => {
+        return {
+          show: true,
+          region: {
+            ...prevState.region,
+            latitude: pos.coords.latitude,
+            longitude: pos.coords.longitude,
+          },
+        };
       });
+    }
+
+    console.log("test from getLocation2");
+    this.map.animateToRegion({
+      ...this.state.region,
+      latitude: this.state.region.latitude,
+      longitude: this.state.region.longitude,
+    });
 
     this.getStations2(this.state.region.latitude, this.state.region.longitude);
-    // this.getWithinDistance();
   };
   navigationButtonPressed({ buttonId }) {
     this.getLocationHandler();
@@ -220,8 +230,18 @@ export default class MapScreen extends Component {
     // });
   };
   render() {
-    console.log("Here station. ", this.state.stations);
-    const interpolations = this.state.markers.map((marker, index) => {
+    let mark = [];
+    const marckers = this.state.stations.map((marker, index) => {
+      mark.push({
+        latitude: marker.position.lat,
+        longitude: marker.position.lon,
+      });
+      console.log("stations", marker);
+      console.log("marker", marker.poi.name);
+      return mark;
+    });
+
+    const interpolations = marckers.map((marker, index) => {
       const inputRange = [
         (index - 1) * CARD_WIDTH,
         index * CARD_WIDTH,
@@ -251,7 +271,7 @@ export default class MapScreen extends Component {
             initialRegion={this.state.region}
             style={styles.container}
           >
-            {this.state.markers.map((marker, index) => {
+            {mark.map((marker, index) => {
               const scaleStyle = {
                 transform: [
                   {
@@ -263,10 +283,11 @@ export default class MapScreen extends Component {
                 opacity: interpolations[index].opacity,
               };
               return (
-                <Marker key={index} coordinate={marker.coordinates}>
-                  <Animated.View style={[styles.markerWrap, opacityStyle]}>
-                    <Animated.View style={[styles.ring, scaleStyle]} />
-                    <View style={styles.marker} />
+                <Marker key={index} coordinate={marker}>
+                  <Animated.View>
+                    <View>
+                      <Icon name="charging-station" size={32} color="green" />
+                    </View>
                   </Animated.View>
                 </Marker>
               );
@@ -287,6 +308,7 @@ export default class MapScreen extends Component {
             />
           </View>
         )}
+        <Text style={{ backgroundColor: "grey" }}>Nearest stations found</Text>
         <Animated.ScrollView
           horizontal
           scrollEventThrottle={16}
@@ -307,25 +329,25 @@ export default class MapScreen extends Component {
           style={styles.scrollView}
           contentContainerStyle={styles.endPadding}
         >
-          {this.state.markers.map((marker, index) => (
+          {this.state.stations.map((marker, index) => (
             <TouchableOpacity
               key={index}
               onPress={() => this.handleShow(index)}
             >
               <View style={styles.card}>
-                <Image
-                  source={marker.image}
-                  style={styles.cardImage}
-                  resizeMode="cover"
-                  ref={(img) => (this.images[index] = img)}
-                />
                 <View style={styles.textContent}>
                   <Text numberOfLines={1} style={styles.cardtitle}>
-                    {marker.name}
+                    {marker.poi.name}
                   </Text>
                   <Text numberOfLines={1} style={styles.cardDescription}>
-                    {marker.type}
+                    {marker.address.freeformAddress}
                   </Text>
+                  <View style={{ width: 20, height: 20 }}>
+                    <Image
+                      style={{ width: 30, height: 30 }}
+                      source={require("../assets/images/ev-plug-chademo.png")}
+                    />
+                  </View>
                 </View>
               </View>
             </TouchableOpacity>

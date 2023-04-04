@@ -5,6 +5,7 @@ import LoginScreen from "../screens/LoginScreen";
 import RegisterScreen from "../screens/RegisterScreen";
 import SplashScreen from "../screens/SplashScreen";
 import CompleteProfileScreen from "../screens/CompleteProfileScreen";
+import CarUserScreen from "../screens/CarUserScreen";
 
 const Auth = createNativeStackNavigator();
 const AuthNav = () => {
@@ -17,6 +18,7 @@ const AuthNav = () => {
         name="CompleteProfileScreen"
         component={CompleteProfileScreen}
       />
+      <Auth.Screen name="CarUserScreen" component={CarUserScreen} />
     </Auth.Navigator>
   );
 };

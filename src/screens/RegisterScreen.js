@@ -14,12 +14,15 @@ import { LinearGradient } from "expo-linear-gradient";
 
 import { createUserWithEmailAndPassword } from "firebase/auth";
 import { auth } from "../firebase-config";
+import { setEmail } from "../redux/userSlice";
 import FontAwesome from "react-native-vector-icons/FontAwesome";
 import Feather from "react-native-vector-icons/Feather";
 import { emailValidator } from "../utility/validation";
 import { useNavigation } from "@react-navigation/native";
+import { useDispatch } from "react-redux";
 
 const RegisterScreen = () => {
+  const dispatch = useDispatch();
   const [data, setData] = React.useState({
     email: "",
     password: "",
@@ -92,16 +95,16 @@ const RegisterScreen = () => {
     createUserWithEmailAndPassword(auth, data.email, data.password)
       .then((userCredential) => {
         // Signed in
-        const user = userCredential.user;
-        console.log(user);
-        navigation.navigate("CompleteProfileScreen");
-        // ...
+        const email = userCredential.user.email;
+        console.log("email", email);
+        dispatch(setEmail(email));
       })
       .catch((error) => {
         const errorCode = error.code;
         const errorMessage = error.message;
         // ..
       });
+    navigation.navigate("CompleteProfileScreen");
   };
   return (
     <View style={styles.container}>
@@ -215,7 +218,7 @@ const RegisterScreen = () => {
                     },
                   ]}
                 >
-                  Sign Up
+                  Next
                 </Text>
               </LinearGradient>
             </TouchableOpacity>
@@ -239,7 +242,7 @@ const RegisterScreen = () => {
                   },
                 ]}
               >
-                Sign In
+                Go back
               </Text>
             </TouchableOpacity>
           </View>

@@ -1,15 +1,43 @@
 import {
-  StyleSheet,
-  Text,
-  TouchableOpacity,
   View,
+  Button,
+  TouchableOpacity,
+  Dimensions,
+  Platform,
+  StyleSheet,
+  ScrollView,
   StatusBar,
 } from "react-native";
-import React from "react";
+
+import { useState } from "react";
+import { Text, TextInput } from "@react-native-material/core";
 import { useNavigation } from "@react-navigation/native";
+import { useDispatch } from "react-redux";
+import { setProfile } from "../redux/userSlice";
 
 const CompleteProfileScreen = () => {
-  const navigate = useNavigation();
+  const dispatch = useDispatch();
+  const [firstname, setFirstName] = useState("");
+  const [lastname, setLastName] = useState("");
+  const [city, setCity] = useState("");
+  const [country, setCountry] = useState("");
+  const navigation = useNavigation();
+  const handle_firstname = (val) => {
+    setFirstName(val);
+  };
+  const handle_lastname = (val) => {
+    setLastName(val);
+  };
+  const handle_city = (val) => {
+    setCity(val);
+  };
+  const handle_country = (val) => {
+    setCountry(val);
+  };
+  const onSubmit = () => {
+    dispatch(setProfile({ firstname, lastname, city, country }));
+    navigation.navigate("CarUserScreen");
+  };
   return (
     <View style={styles.container}>
       <StatusBar backgroundColor="#009387" barStyle="light-content" />
@@ -17,10 +45,88 @@ const CompleteProfileScreen = () => {
         <Text style={styles.text_header}>CompleteProfileScreen</Text>
       </View>
       <View style={styles.footer}>
-        <Text style={styles.text_footer}>content</Text>
-        <TouchableOpacity onPress={() => navigate.navigate("RegisterScreen")}>
-          <Text>Return to registry</Text>
-        </TouchableOpacity>
+        <ScrollView>
+          <View style={styles.action}>
+            <TextInput
+              placeholder="First name"
+              style={styles.textInput}
+              autoCapitalize="none"
+              onChangeText={(val) => handle_firstname(val)}
+            />
+          </View>
+
+          <View style={styles.action}>
+            <TextInput
+              placeholder="Last name"
+              style={styles.textInput}
+              autoCapitalize="none"
+              onChangeText={(val) => handle_lastname(val)}
+            />
+          </View>
+
+          <View style={styles.action}>
+            <TextInput
+              placeholder="City"
+              style={styles.textInput}
+              autoCapitalize="none"
+              onChangeText={(val) => handle_city(val)}
+            />
+          </View>
+
+          <View style={styles.action}>
+            <TextInput
+              placeholder="Country"
+              style={styles.textInput}
+              autoCapitalize="none"
+              onChangeText={(val) => handle_country(val)}
+            />
+          </View>
+
+          <TouchableOpacity
+            onPress={onSubmit}
+            style={[
+              styles.signIn,
+              {
+                borderColor: "#009387",
+                borderWidth: 1,
+                marginTop: 15,
+              },
+            ]}
+          >
+            <Text
+              style={[
+                styles.textSign,
+                {
+                  color: "#009387",
+                },
+              ]}
+            >
+              Next
+            </Text>
+          </TouchableOpacity>
+          <TouchableOpacity
+            onPress={() => navigation.goBack()}
+            style={[
+              styles.signIn,
+              {
+                borderColor: "#009387",
+                borderWidth: 1,
+                marginTop: 15,
+              },
+            ]}
+          >
+            <Text
+              style={[
+                styles.textSign,
+                {
+                  color: "#009387",
+                },
+              ]}
+            >
+              Go back
+            </Text>
+          </TouchableOpacity>
+        </ScrollView>
       </View>
     </View>
   );

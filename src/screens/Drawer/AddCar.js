@@ -44,13 +44,13 @@ const AddCarScreen = () => {
   const handleMarca = (val) => {
     setNaming({
       ...naming,
-      model: val,
+      make: val,
     });
   };
   const handleModel = (val) => {
     setNaming({
       ...naming,
-      make: val,
+      model: val,
     });
   };
   const handleVersion = (val) => {

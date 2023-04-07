@@ -35,7 +35,6 @@ export default function App() {
         setIsLoading(false);
       }
     }
-
     prepare();
     onAuthStateChanged(auth, (user) => {
       if (user) {

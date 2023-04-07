@@ -17,7 +17,7 @@ import TouchText from "../components/TouchText";
 import { colors, device, fonts } from "../constants";
 import axios from "axios";
 import Icon from "@expo/vector-icons/FontAwesome5";
-
+import { useNavigation } from "@react-navigation/native";
 import { collection, getDocs } from "firebase/firestore";
 import { db } from "../firebase-config";
 const { PROVIDER_GOOGLE } = MapView;
@@ -27,17 +27,17 @@ import MapViewDirections from "../components/MapViewDirections";
 const { width, height } = Dimensions.get("window");
 const CARD_HEIGHT = height / 4;
 const CARD_WIDTH = CARD_HEIGHT - 50;
-export default class MapScreen extends Component {
+class MapScreen extends Component {
   constructor(props) {
     super(props);
     this.state = {
       region: {
         latitude: 44.3077568,
         longitude: 23.7967414,
-        latitudeDelta: 0.0422,
+        latitudeDelta: 0.000920000000000698,
         longitudeDelta:
           (Dimensions.get("window").width / Dimensions.get("window").height) *
-          0.0422,
+          0.0122,
       },
       openIndex: null,
       render: false,
@@ -94,7 +94,7 @@ export default class MapScreen extends Component {
   }
 
   getStations2(lat, long) {
-    let sta = {};
+    let mark = [];
     axios
       .get(
         "https://api.tomtom.com/search/2/nearbySearch/.json?key=WJ8s7PREG7SxRMtQTZaS6c0kyLjO5lfa&lat=" +
@@ -106,6 +106,19 @@ export default class MapScreen extends Component {
       .then((res) => {
         const stations = res.data.results;
         this.setState({ stations });
+      })
+      .then(() => {
+        const mark = [];
+
+        this.state.stations.map((marker, index) => {
+          mark.push({
+            latitude: marker.position.lat,
+            longitude: marker.position.lon,
+          });
+          return mark;
+        });
+        this.setState({ markers: mark });
+        this.getRegionForCoordinates(mark);
       })
 
       .catch(function (error) {
@@ -209,35 +222,42 @@ export default class MapScreen extends Component {
       longitude: this.state.region.longitude,
     });
   }
+  getRegionForCoordinates(points) {
+    let minLat = Math.min(...points.map((p) => p.latitude));
+    let maxLat = Math.max(...points.map((p) => p.latitude));
+    let minLon = Math.min(...points.map((p) => p.longitude));
+    let maxLon = Math.max(...points.map((p) => p.longitude));
 
-  handleShow = (index) => {
-    const selPlace = this.state.markers[index];
-    // Navigation.push("MyStack3", {
-    //   component: {
-    //     name: "places.PlaceDetail",
-    //     passProps: {
-    //       text: "Pushed screen",
-    //       selectedPlace: selPlace,
-    //     },
-    //     options: {
-    //       topBar: {
-    //         title: {
-    //           text: selPlace.name,
-    //         },
-    //       },
-    //     },
-    //   },
-    // });
+    const midX = (minLat + maxLat) / 2;
+    const midY = (minLon + maxLon) / 2;
+    const deltaX = maxLat - minLat + 0.1;
+    const deltaY = maxLon - minLon;
+    this.setState({
+      region: {
+        latitude: midX,
+        longitude: midY,
+        latitudeDelta: deltaX,
+        longitudeDelta: deltaY,
+      },
+    });
+    this.map.animateToRegion({
+      ...this.state.region,
+      latitude: this.state.region.latitude,
+      longitude: this.state.region.longitude,
+    });
+  }
+
+  handleShow = (index, marker) => {
+    navigator;
   };
   render() {
+    const { navigation } = this.props;
     let mark = [];
     const marckers = this.state.stations.map((marker, index) => {
       mark.push({
         latitude: marker.position.lat,
         longitude: marker.position.lon,
       });
-      console.log("stations", marker);
-      console.log("marker", marker.poi.name);
       return mark;
     });
 
@@ -332,22 +352,38 @@ export default class MapScreen extends Component {
           {this.state.stations.map((marker, index) => (
             <TouchableOpacity
               key={index}
-              onPress={() => this.handleShow(index)}
+              onPress={() =>
+                navigation.navigate("EVStation", {
+                  itemId: index,
+                  marker,
+                })
+              }
             >
               <View style={styles.card}>
                 <View style={styles.textContent}>
                   <Text numberOfLines={1} style={styles.cardtitle}>
                     {marker.poi.name}
                   </Text>
-                  <Text numberOfLines={1} style={styles.cardDescription}>
+                  <Text style={styles.cardDescription}>
                     {marker.address.freeformAddress}
                   </Text>
-                  <View style={{ width: 20, height: 20 }}>
-                    <Image
-                      style={{ width: 30, height: 30 }}
-                      source={require("../assets/images/ev-plug-chademo.png")}
-                    />
-                  </View>
+                  {marker.chargingPark.connectors.map((connector, index) => (
+                    <View key={index} style={{ flex: 1, flexDirection: "row" }}>
+                      <Image
+                        style={{ width: 30, height: 30 }}
+                        source={require("../assets/images/ev-plug-chademo.png")}
+                      />
+                      <Text style={styles.cardtitle}>
+                        {" "}
+                        {connector.currentType}{" "}
+                      </Text>
+                      <Text style={styles.cardtitle}>
+                        {" "}
+                        {connector.ratedPowerKW} kw{" "}
+                      </Text>
+                    </View>
+                  ))}
+                  <Text>Distance to:{Math.round(marker.dist * 10) / 10} m</Text>
                 </View>
               </View>
             </TouchableOpacity>
@@ -356,6 +392,11 @@ export default class MapScreen extends Component {
       </View>
     );
   }
+}
+export default function (props) {
+  const navigation = useNavigation();
+
+  return <MapScreen {...props} navigation={navigation} />;
 }
 
 const styles = StyleSheet.create({

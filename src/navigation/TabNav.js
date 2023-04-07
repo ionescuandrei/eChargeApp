@@ -1,12 +1,10 @@
+import React from "react";
 import { createBottomTabNavigator } from "@react-navigation/bottom-tabs";
 import { Ionicons } from "@expo/vector-icons";
-import MapScreen from "../screens/MapScreen";
-import AccountScreen from "../screens/Drawer/AddCar";
 import AddCarScreen from "../screens/Drawer/AddCar";
 
+import HomeNav from "./HomeNav";
 const Tab = createBottomTabNavigator();
-
-import React from "react";
 
 const TabNav = () => {
   return (
@@ -30,7 +28,7 @@ const TabNav = () => {
     >
       <Tab.Screen
         name="Home"
-        component={MapScreen}
+        component={HomeNav}
         options={{ headerShown: false }}
       />
       <Tab.Screen

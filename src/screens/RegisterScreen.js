@@ -12,8 +12,6 @@ import {
 import { Text, TextInput } from "@react-native-material/core";
 import { LinearGradient } from "expo-linear-gradient";
 
-import { createUserWithEmailAndPassword } from "firebase/auth";
-import { auth } from "../firebase-config";
 import { setEmail } from "../redux/userSlice";
 import FontAwesome from "react-native-vector-icons/FontAwesome";
 import Feather from "react-native-vector-icons/Feather";
@@ -92,18 +90,12 @@ const RegisterScreen = () => {
     });
   };
   const handleRegister = () => {
-    createUserWithEmailAndPassword(auth, data.email, data.password)
-      .then((userCredential) => {
-        // Signed in
-        const email = userCredential.user.email;
-        console.log("email", email);
-        dispatch(setEmail(email));
+    dispatch(
+      setEmail({
+        email: data.email,
+        password: data.password,
       })
-      .catch((error) => {
-        const errorCode = error.code;
-        const errorMessage = error.message;
-        // ..
-      });
+    );
     navigation.navigate("CompleteProfileScreen");
   };
   return (

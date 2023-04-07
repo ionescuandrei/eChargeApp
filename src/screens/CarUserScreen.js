@@ -10,16 +10,19 @@ import {
 import { Picker } from "@react-native-picker/picker";
 import { useState, useEffect } from "react";
 import { collection, getDocs } from "firebase/firestore";
-import { db } from "../firebase-config";
 import { useNavigation } from "@react-navigation/native";
-import { useDispatch } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import { setCar } from "../redux/userSlice";
+import { doc, setDoc } from "firebase/firestore";
+import { createUserWithEmailAndPassword } from "firebase/auth";
+import { auth, db } from "../firebase-config";
 
 const CarUserScreen = () => {
   const [selectedCarMarca, setSelectedCarMarca] = useState("");
   const [selectedCarModel, setSelectedCarModel] = useState("");
   const [filteredCar, setFilteredCar] = useState([]);
   const [cars, setCars] = useState([]);
+  const user = useSelector((state) => state.user);
   const navigation = useNavigation();
   const dispatch = useDispatch();
 
@@ -44,7 +47,28 @@ const CarUserScreen = () => {
   };
   const onSubmit = () => {
     dispatch(setCar({ selectedCarMarca, selectedCarModel }));
-    navigation.navigate("CarUserScreen");
+    createUserWithEmailAndPassword(auth, user.email, user.password)
+      .then((userCredential) => {
+        // Signed in
+        const email = userCredential.user.email;
+        console.log("email", email);
+      })
+      .catch((error) => {
+        const errorCode = error.code;
+        const errorMessage = error.message;
+        // ..
+      });
+    setDoc(doc(db, "users", user.firstname + " " + user.lastname), {
+      firstname: user.firstname,
+      lastname: user.lastname,
+      email: user.email,
+      city: user.city,
+      country: user.country,
+      car: {
+        marca: selectedCarMarca,
+        model: selectedCarModel,
+      },
+    });
   };
   return (
     <View style={styles.container}>
@@ -57,9 +81,9 @@ const CarUserScreen = () => {
           <View style={{ paddingHorizontal: 15, marginTop: 15 }}>
             <Text>Marca</Text>
             <Picker
-              selectedValue={handleSelectedCarModel}
+              selectedValue={selectedCarMarca}
               onValueChange={(itemValue, itemIndex) =>
-                setSelectedCarMarca(itemValue)
+                handleSelectedCarModel(itemValue)
               }
             >
               {cars.map((item) => (

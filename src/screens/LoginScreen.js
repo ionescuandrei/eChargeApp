@@ -212,7 +212,7 @@ const LoginScreen = () => {
           </TouchableOpacity>
 
           <TouchableOpacity
-            onPress={() => navigation.navigate("CarUserScreen")}
+            onPress={() => navigation.navigate("RegisterScreen")}
             style={[
               styles.signIn,
               {

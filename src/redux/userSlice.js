@@ -6,6 +6,8 @@ const initialState = {
   city: "",
   country: "",
   car: null,
+  password: "",
+  isSignIn: false,
 };
 
 const userSlice = createSlice({
@@ -13,7 +15,8 @@ const userSlice = createSlice({
   initialState,
   reducers: {
     setEmail: (state, action) => {
-      state.email = action.payload;
+      state.email = action.payload.email;
+      state.password = action.payload.password;
     },
     setProfile: (state, action) => {
       (state.firstname = action.payload.firstname),
@@ -23,6 +26,7 @@ const userSlice = createSlice({
     },
     setCar: (state, action) => {
       state.car = action.payload;
+      state.isSignIn = true;
     },
     getUser: (state, action) => {},
   },

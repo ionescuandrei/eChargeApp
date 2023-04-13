@@ -97,7 +97,7 @@ class MapScreen extends Component {
     let mark = [];
     axios
       .get(
-        "https://api.tomtom.com/search/2/nearbySearch/.json?key=WJ8s7PREG7SxRMtQTZaS6c0kyLjO5lfa&lat=" +
+        "https://api.tomtom.com/search/2/nearbySearch/.json?key= WJ8s7PREG7SxRMtQTZaS6c0kyLjO5lfa &lat=" +
           lat +
           "&lon=" +
           long +
@@ -171,7 +171,7 @@ class MapScreen extends Component {
       return;
     }
 
-    let pos = await Location.getLastKnownPositionAsync();
+    let pos = await Location.getCurrentPositionAsync();
     console.log("getLocation", pos);
     if (pos == null) {
       await Location.getCurrentPositionAsync({
@@ -312,7 +312,7 @@ class MapScreen extends Component {
                 </Marker>
               );
             })}
-            {/* <MapDirections /> */}
+            <MapDirections />
           </MapView>
         )}
         {!this.state.show && (

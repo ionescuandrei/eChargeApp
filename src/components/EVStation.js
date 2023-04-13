@@ -1,5 +1,4 @@
 import { StyleSheet, Text, View, ScrollView } from "react-native";
-import Conector from "./Conector";
 
 const EVStation = ({ route, navigation }) => {
   const { itemId, marker } = route.params;
@@ -11,7 +10,6 @@ const EVStation = ({ route, navigation }) => {
             <View style={styles.placeNameTitle}>
               <Text style={styles.placeName}>{marker.poi.name}</Text>
               <Text>Adress: {marker.address.freeformAddress}</Text>
-              <Conector />
             </View>
           </View>
         </View>

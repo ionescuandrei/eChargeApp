@@ -95,7 +95,7 @@ const CarChargingMode = ({
               >
                 {facilityTypes.map((item) => (
                   <Picker.Item
-                    key={item.id}
+                    key={item.facilityType}
                     label={item.facilityType}
                     value={item.facilityType}
                   />
@@ -110,7 +110,7 @@ const CarChargingMode = ({
               >
                 {plugTypes.map((item) => (
                   <Picker.Item
-                    key={item.id}
+                    key={item.plugType}
                     label={item.plugType}
                     value={item.plugType}
                   />
@@ -137,7 +137,7 @@ const CarChargingMode = ({
             </ScrollView>
             <Pressable
               style={[styles.button, styles.buttonClose]}
-              onPress={() => onSubmit}
+              onPress={onSubmit}
             >
               <Text style={styles.textStyle}>Add</Text>
             </Pressable>

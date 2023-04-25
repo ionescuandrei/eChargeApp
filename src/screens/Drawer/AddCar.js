@@ -22,6 +22,7 @@ const AddCarScreen = () => {
   const [modalVisible, setModalVisible] = useState(false);
   const [chargingConnections, setChargingConnections] = useState([]);
   const [chargingCurves, setChargingCurves] = useState([]);
+  const [chargingModes, setChargingModes] = useState([]);
   const [data, setData] = useState({
     constantSpeedConsumpltionInkWhPerHundredKm: 0,
     vehicleWeight: 0,
@@ -41,6 +42,7 @@ const AddCarScreen = () => {
   };
   const handle_charging_connections = (chargingConns) => {
     setChargingConnections([...chargingConnections, chargingConns]);
+    console.log(chargingConns);
   };
   const handle_charging_curve = (chargingCurv) => {
     setChargingCurves([...chargingCurves, chargingCurv]);
@@ -83,7 +85,7 @@ const AddCarScreen = () => {
       topSpeed: val,
     });
   };
-  constantSpeedConsumpltionInkWhPerHundredKm;
+
   const handleWeight = (val) => {
     setData({
       ...data,
@@ -218,6 +220,11 @@ const AddCarScreen = () => {
               onChangeText={(val) => handleUrl(val)}
             />
           </View>
+          {chargingConnections.length > 0 &&
+            chargingConnections.map((item, index) => {
+              console.log(item);
+              return <Text key={index}>{item.plugType}</Text>;
+            })}
           <CarChargingMode
             modalVisible={modalVisible}
             modalFunction={modalFunction}

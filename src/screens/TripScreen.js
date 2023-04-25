@@ -3,7 +3,7 @@ import React, { useState } from "react";
 import SearchBarWithAutocomplete from "../components/SearchBarWithAutocomplete";
 import axios from "axios";
 import { useDebounce } from "../utility/useDebounce";
-const GOOGLE_API_KEY = "AIzaSyBhjyACOvunhBGImT7u64vFKW5oLGHuedg";
+
 const TripScreen = () => {
   const [search, setSearch] = useState({ term: "", fetchPredictions: false });
   const [search1, setSearch1] = useState({ term: "", fetchPredictions: false });

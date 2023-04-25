@@ -21,11 +21,6 @@ var audi = {
   maxChargeInkWh: 95.0,
 };
 var APIKEY = "WJ8s7PREG7SxRMtQTZaS6c0kyLjO5lfa";
-var savedLocation = {
-  lat: 49.1,
-  lon: -122.8,
-  zoom: 14,
-};
 
 var audiChargingModes = {
   chargingModes: [

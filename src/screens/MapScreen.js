@@ -12,7 +12,7 @@ import {
 } from "react-native";
 import MapView, { Marker } from "react-native-maps";
 import * as Location from "expo-location";
-import MapDirections from "../components/MapDirections";
+// import MapDirections from "../components/MapDirections";
 import TouchText from "../components/TouchText";
 import { colors, device, fonts } from "../constants";
 import axios from "axios";
@@ -94,10 +94,9 @@ class MapScreen extends Component {
   }
 
   getStations2(lat, long) {
-    let mark = [];
     axios
       .get(
-        "https://api.tomtom.com/search/2/nearbySearch/.json?key= WJ8s7PREG7SxRMtQTZaS6c0kyLjO5lfa &lat=" +
+        "https://api.tomtom.com/search/2/nearbySearch/.json?key=WJ8s7PREG7SxRMtQTZaS6c0kyLjO5lfa&lat=" +
           lat +
           "&lon=" +
           long +
@@ -117,13 +116,14 @@ class MapScreen extends Component {
           });
           return mark;
         });
+        console.log("test from getLocation2", mark);
         this.setState({ markers: mark });
         this.getRegionForCoordinates(mark);
       })
 
       .catch(function (error) {
         // handle error
-        console.log(error);
+        console.log("erroare", error);
       });
   }
   getStations = async () => {
@@ -205,7 +205,6 @@ class MapScreen extends Component {
       });
     }
 
-    console.log("test from getLocation2");
     this.map.animateToRegion({
       ...this.state.region,
       latitude: this.state.region.latitude,
@@ -312,7 +311,7 @@ class MapScreen extends Component {
                 </Marker>
               );
             })}
-            <MapDirections />
+            {/* <MapDirections /> */}
           </MapView>
         )}
         {!this.state.show && (

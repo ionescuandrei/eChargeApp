@@ -1,9 +1,9 @@
 import React from "react";
 import { createBottomTabNavigator } from "@react-navigation/bottom-tabs";
 import { Ionicons } from "@expo/vector-icons";
-import AddCarScreen from "../screens/Drawer/AddCar";
 
 import HomeNav from "./HomeNav";
+import TripScreen from "../screens/TripScreen";
 const Tab = createBottomTabNavigator();
 
 const TabNav = () => {
@@ -15,7 +15,7 @@ const TabNav = () => {
 
           if (route.name === "Home") {
             iconName = focused ? "map" : "map-sharp";
-          } else if (route.name === "Settings") {
+          } else if (route.name === "Trip") {
             iconName = focused ? "home" : "settings";
           }
 
@@ -32,8 +32,8 @@ const TabNav = () => {
         options={{ headerShown: false }}
       />
       <Tab.Screen
-        name="AddCarScreen"
-        component={AddCarScreen}
+        name="Trip"
+        component={TripScreen}
         options={{ headerShown: false }}
       />
     </Tab.Navigator>

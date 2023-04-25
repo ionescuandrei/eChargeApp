@@ -112,13 +112,17 @@ const AddCarScreen = () => {
   };
   const onSubmit = () => {
     // Add a new document in collection "cities"
+    const chargeMode = [
+      {
+        chargingConnections: chargingConnections,
+        chargingCurve: chargingCurves,
+      },
+    ];
 
     setDoc(doc(db, "cars", naming.make + " " + naming.model), {
       naming: naming,
-      battery: data.battery,
-      topSpeed: data.topSpeed,
-      range: data.range,
-      url: data.url,
+      specs: data,
+      chargingModes: chargeMode,
     });
     alert("Db save");
   };

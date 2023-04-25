@@ -13,7 +13,7 @@ import { collection, getDocs } from "firebase/firestore";
 import { useNavigation } from "@react-navigation/native";
 import { useDispatch, useSelector } from "react-redux";
 import { setCar } from "../redux/userSlice";
-import { doc, setDoc } from "firebase/firestore";
+import { doc, setDoc, getDoc } from "firebase/firestore";
 import { createUserWithEmailAndPassword } from "firebase/auth";
 import { auth, db } from "../firebase-config";
 
@@ -46,17 +46,21 @@ const CarUserScreen = () => {
     setFilteredCar(filtere);
   };
   const onSubmit = () => {
-    dispatch(setCar({ selectedCarMarca, selectedCarModel }));
+    const userCar = cars.find(
+      (car) =>
+        car.naming.model == selectedCarModel &&
+        car.naming.make == selectedCarMarca
+    );
+    dispatch(setCar(userCar));
     createUserWithEmailAndPassword(auth, user.email, user.password)
       .then((userCredential) => {
         // Signed in
         const email = userCredential.user.email;
-        console.log("email", email);
       })
       .catch((error) => {
         const errorCode = error.code;
         const errorMessage = error.message;
-        // ..
+        console.log(error.message);
       });
     setDoc(doc(db, "users", user.firstname + " " + user.lastname), {
       firstname: user.firstname,
@@ -64,10 +68,7 @@ const CarUserScreen = () => {
       email: user.email,
       city: user.city,
       country: user.country,
-      car: {
-        marca: selectedCarMarca,
-        model: selectedCarModel,
-      },
+      car: userCar,
     });
   };
   return (

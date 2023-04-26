@@ -22,8 +22,8 @@ import { collection, getDocs } from "firebase/firestore";
 import { db } from "../firebase-config";
 const { PROVIDER_GOOGLE } = MapView;
 
-// Using a local version here because we need it to import MapView from 'expo'
-import MapViewDirections from "../components/MapViewDirections";
+import { useDispatch } from "react-redux";
+import { setLocation } from "../redux/userSlice";
 const { width, height } = Dimensions.get("window");
 const CARD_HEIGHT = height / 4;
 const CARD_WIDTH = CARD_HEIGHT - 50;
@@ -41,7 +41,7 @@ class MapScreen extends Component {
       },
       openIndex: null,
       render: false,
-      show: true,
+      show: false,
       overlayImage: false,
       coords: {
         left: new Animated.Value(0),
@@ -210,7 +210,7 @@ class MapScreen extends Component {
       latitude: this.state.region.latitude,
       longitude: this.state.region.longitude,
     });
-
+    this.props.dispatch(setLocation(pos.coords));
     this.getStations2(this.state.region.latitude, this.state.region.longitude);
   };
   navigationButtonPressed({ buttonId }) {
@@ -394,8 +394,9 @@ class MapScreen extends Component {
 }
 export default function (props) {
   const navigation = useNavigation();
+  const dispatch = useDispatch();
 
-  return <MapScreen {...props} navigation={navigation} />;
+  return <MapScreen {...props} navigation={navigation} dispatch={dispatch} />;
 }
 
 const styles = StyleSheet.create({

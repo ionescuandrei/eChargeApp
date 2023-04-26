@@ -14,9 +14,10 @@ import AddConnector from "../screens/Drawer/AddConnector";
 import AddStation from "../screens/Drawer/AddStation";
 import { signOut } from "firebase/auth";
 import { auth } from "../firebase-config";
+
 const Drawer = createDrawerNavigator();
 
-const DrawerNavigator = () => {
+const DrawerNavigator = ({ route, navigation }) => {
   const DrawerHeaderContent = (props) => {
     return (
       <DrawerContentScrollView contentContainerStyle={{ flex: 1 }}>

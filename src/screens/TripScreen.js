@@ -1,19 +1,35 @@
-import { SafeAreaView, StyleSheet, StatusBar, View, Text } from "react-native";
+import {
+  SafeAreaView,
+  StyleSheet,
+  StatusBar,
+  View,
+  Text,
+  Pressable,
+  Image,
+} from "react-native";
 import React, { useState } from "react";
+import { useDispatch, useSelector } from "react-redux";
 import SearchBarWithAutocomplete from "../components/SearchBarWithAutocomplete";
 import axios from "axios";
 import { useDebounce } from "../utility/useDebounce";
+import Slider from "@react-native-community/slider";
+import images from "../utility/images";
+import { Badge, Stack } from "@react-native-material/core";
+import { setDestination, setOrigin, setCarCharge } from "../redux/tripSlice";
+import { useNavigation } from "@react-navigation/native";
 
 const TripScreen = () => {
   const [search, setSearch] = useState({ term: "", fetchPredictions: false });
   const [search1, setSearch1] = useState({ term: "", fetchPredictions: false });
-  const [location, setLocation] = useState({});
-  const [destination, setDestination] = useState({});
   const [predictions, setPredictions] = useState([]);
   const [predictions1, setPredictions1] = useState([]);
   const [showPredictions, setShowPredictions] = useState(true);
   const [showPredictions1, setShowPredictions1] = useState(true);
+  const [chargingLevel, setChargingLevel] = useState(0);
   const { container, body } = styles;
+  const dispatch = useDispatch();
+  const navigation = useNavigation();
+
   const GOOGLE_PACES_API_BASE_URL =
     "https://maps.googleapis.com/maps/api/place";
   const onChangeText = async () => {
@@ -79,8 +95,7 @@ const TripScreen = () => {
           },
         } = result;
         const { lat, lng } = location;
-        setLocation(location);
-        console.log("Origin ", location);
+        dispatch(setOrigin(location));
         setShowPredictions(false);
         setSearch({ term: description });
       }
@@ -104,14 +119,18 @@ const TripScreen = () => {
           },
         } = result;
         const { lat, lng } = location;
-        console.log("Destination ", location);
-        setDestination(location);
+        dispatch(setDestination(location));
         setShowPredictions1(false);
         setSearch1({ term: description });
       }
     } catch (e) {
       console.log(e);
     }
+  };
+  const submit = () => {
+    console.log("submit");
+    dispatch(setCarCharge(chargingLevel));
+    navigation.navigate("TripMapScreen");
   };
   return (
     <View style={styles.container}>
@@ -141,6 +160,35 @@ const TripScreen = () => {
             predictions={predictions1}
             onPredictionTapped={onPredictionTapped1}
           />
+          <Text>Charge Level (kwh)</Text>
+          <Slider
+            minimumValue={1}
+            maximumValue={50}
+            minimumTrackTintColor="#009387"
+            maximumTrackTintColor="#000000"
+            onSlidingComplete={(val) => setChargingLevel(val)}
+          />
+          <View style={styles.itemBadge}>
+            <Image source={images.car} style={{ height: 200, width: 350 }} />
+            <View
+              style={{
+                position: "absolute",
+                height: 30,
+                width: 50,
+                left: 10,
+                top: 10,
+              }}
+            >
+              <Badge label={chargingLevel} color="#009387" />
+            </View>
+          </View>
+
+          <Pressable
+            style={[styles.button, styles.buttonOpen]}
+            onPress={submit}
+          >
+            <Text style={styles.textStyle}>Create</Text>
+          </Pressable>
         </View>
       </SafeAreaView>
     </View>
@@ -158,6 +206,7 @@ const styles = StyleSheet.create({
     paddingHorizontal: 20,
     paddingBottom: 50,
   },
+
   footer: {
     flex: Platform.OS === "ios" ? 3 : 5,
     backgroundColor: "#fff",
@@ -173,6 +222,30 @@ const styles = StyleSheet.create({
   },
   body: {
     paddingHorizontal: 20,
+  },
+  button: {
+    borderRadius: 20,
+    padding: 5,
+    elevation: 2,
+  },
+  buttonOpen: {
+    backgroundColor: "#009387",
+  },
+  textStyle: {
+    color: "white",
+    fontWeight: "bold",
+    textAlign: "center",
+  },
+  containerImage: {
+    flex: 1,
+    backgroundColor: "#fff",
+    alignItems: "center",
+    justifyContent: "center",
+  },
+  image: {
+    flex: 1,
+    width: "100%",
+    backgroundColor: "#0553",
   },
 });
 export default TripScreen;

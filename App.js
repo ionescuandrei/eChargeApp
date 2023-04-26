@@ -70,7 +70,11 @@ export default function App() {
           {!isSignedIn ? (
             <Stack.Screen name="Auth" component={AuthNav} />
           ) : (
-            <Stack.Screen name="DrawerNav" component={Drawer} />
+            <Stack.Screen
+              name="DrawerNav"
+              component={Drawer}
+              initialParams={{ email: isLoading }}
+            />
           )}
         </Stack.Navigator>
       </NavigationContainer>

@@ -3,7 +3,8 @@ import { createBottomTabNavigator } from "@react-navigation/bottom-tabs";
 import { Ionicons } from "@expo/vector-icons";
 
 import HomeNav from "./HomeNav";
-import TripScreen from "../screens/TripScreen";
+
+import TripNav from "./TripNav";
 const Tab = createBottomTabNavigator();
 
 const TabNav = () => {
@@ -15,7 +16,7 @@ const TabNav = () => {
 
           if (route.name === "Home") {
             iconName = focused ? "map" : "map-sharp";
-          } else if (route.name === "Trip") {
+          } else if (route.name === "TripTab") {
             iconName = focused ? "home" : "settings";
           }
 
@@ -32,8 +33,8 @@ const TabNav = () => {
         options={{ headerShown: false }}
       />
       <Tab.Screen
-        name="Trip"
-        component={TripScreen}
+        name="TripTab"
+        component={TripNav}
         options={{ headerShown: false }}
       />
     </Tab.Navigator>

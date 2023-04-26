@@ -62,7 +62,7 @@ const CarUserScreen = () => {
         const errorMessage = error.message;
         console.log(error.message);
       });
-    setDoc(doc(db, "users", user.firstname + " " + user.lastname), {
+    setDoc(doc(db, "users", user.email), {
       firstname: user.firstname,
       lastname: user.lastname,
       email: user.email,

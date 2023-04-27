@@ -7,7 +7,7 @@ import HomeNav from "./HomeNav";
 import TripNav from "./TripNav";
 const Tab = createBottomTabNavigator();
 
-const TabNav = () => {
+const TabNav = ({ route, navigation }) => {
   return (
     <Tab.Navigator
       screenOptions={({ route }) => ({
@@ -36,6 +36,7 @@ const TabNav = () => {
         name="TripTab"
         component={TripNav}
         options={{ headerShown: false }}
+        initialParams={{ email: route.params.email }}
       />
     </Tab.Navigator>
   );

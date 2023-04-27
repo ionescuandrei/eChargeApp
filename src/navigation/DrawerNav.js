@@ -66,6 +66,7 @@ const DrawerNavigator = ({ route, navigation }) => {
             <MaterialCommunityIcons name="home" color={color} size={size} />
           ),
         }}
+        initialParams={{ email: route.params.email }}
       />
       <Drawer.Screen
         name="Add car"

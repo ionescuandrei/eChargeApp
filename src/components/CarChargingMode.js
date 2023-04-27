@@ -19,6 +19,7 @@ const CarChargingMode = ({
   modalFunction,
   chargingConnection,
   chargingCurve,
+  chargingMode,
 }) => {
   const [facilityType, setFacilityType] = useState("");
   const [facilityTypes, setFacilityTypes] = useState([]);
@@ -59,11 +60,25 @@ const CarChargingMode = ({
     setChargeInkWh(val);
   };
   const handle_timeToCharge = (val) => {
-    setTimeToChargeInSeconds;
+    setTimeToChargeInSeconds(val);
   };
   const onSubmit = () => {
-    console.log("onSubmit");
+    const obj = {
+      chargingConnections: [
+        {
+          facilityType: facilityType,
+          plugType: plugType,
+        },
+      ],
+      chargingCurve: [
+        {
+          chargeInkWh: chargeInkWh,
+          timeToChargeInSeconds: timeToChargeInSeconds,
+        },
+      ],
+    };
     modalFunction(!modalVisible);
+    chargingMode(obj);
     chargingConnection({
       facilityType: facilityType,
       plugType: plugType,

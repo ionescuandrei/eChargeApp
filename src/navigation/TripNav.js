@@ -4,7 +4,7 @@ import TripScreen from "../screens/TripScreen";
 import TripMapScreen from "../screens/TripMapScreen";
 
 const Trip = createNativeStackNavigator();
-const TripNav = () => {
+const TripNav = ({ route }) => {
   return (
     <Trip.Navigator>
       <Trip.Screen
@@ -12,7 +12,11 @@ const TripNav = () => {
         component={TripScreen}
         options={{ headerShown: false }}
       />
-      <Trip.Screen name="TripMapScreen" component={TripMapScreen} />
+      <Trip.Screen
+        name="TripMapScreen"
+        component={TripMapScreen}
+        initialParams={{ email: route.params.email }}
+      />
     </Trip.Navigator>
   );
 };

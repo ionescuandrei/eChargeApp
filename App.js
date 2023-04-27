@@ -19,6 +19,7 @@ const Stack = createNativeStackNavigator();
 export default function App() {
   const [isSignedIn, setIsSignIn] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
+  const [userEmail, setUserEmail] = useState("");
 
   useEffect(() => {
     async function prepare() {
@@ -37,6 +38,7 @@ export default function App() {
     }
     prepare();
     onAuthStateChanged(auth, (user) => {
+      setUserEmail(user ? user.email : "");
       if (user) {
         // User is signed in, see docs for a list of available properties
         // https://firebase.google.com/docs/reference/js/firebase.User
@@ -73,7 +75,7 @@ export default function App() {
             <Stack.Screen
               name="DrawerNav"
               component={Drawer}
-              initialParams={{ email: isLoading }}
+              initialParams={{ email: userEmail }}
             />
           )}
         </Stack.Navigator>

@@ -36,7 +36,7 @@ const CarUserScreen = () => {
       setCars(car);
     }
     fetchCars();
-    console.log(cars);
+    console.log(user);
   }, []);
   const handleSelectedCarModel = (itemValue) => {
     setSelectedCarMarca(itemValue);
@@ -56,6 +56,7 @@ const CarUserScreen = () => {
       .then((userCredential) => {
         // Signed in
         const email = userCredential.user.email;
+        console.log("email sign in", email);
       })
       .catch((error) => {
         const errorCode = error.code;

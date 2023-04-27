@@ -9,6 +9,7 @@ const initialState = {
   password: "",
   isSignIn: false,
   location: null,
+  password: "",
 };
 
 const userSlice = createSlice({
@@ -17,6 +18,7 @@ const userSlice = createSlice({
   reducers: {
     setEmail: (state, action) => {
       state.email = action.payload.email;
+      state.password = action.payload.password;
     },
     setProfile: (state, action) => {
       (state.firstname = action.payload.firstname),

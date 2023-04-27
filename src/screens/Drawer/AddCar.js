@@ -24,7 +24,7 @@ const AddCarScreen = () => {
   const [chargingCurves, setChargingCurves] = useState([]);
   const [chargingModes, setChargingModes] = useState([]);
   const [data, setData] = useState({
-    constantSpeedConsumpltionInkWhPerHundredKm: 0,
+    constantSpeedConsumtion: 0,
     vehicleWeight: 0,
     maxChargeInkWh: 0,
     topSpeed: 0,
@@ -42,10 +42,12 @@ const AddCarScreen = () => {
   };
   const handle_charging_connections = (chargingConns) => {
     setChargingConnections([...chargingConnections, chargingConns]);
-    console.log(chargingConns);
   };
   const handle_charging_curve = (chargingCurv) => {
-    setChargingCurves([...chargingCurves, chargingCurv]);
+    setChargingCurves([chargingCurv]);
+  };
+  const handle_chagingmodes = (obj) => {
+    setChargingModes([...chargingModes, obj]);
   };
 
   const handleMarca = (val) => {
@@ -92,10 +94,10 @@ const AddCarScreen = () => {
       vehicleWeight: val,
     });
   };
-  const handleConsum = (val) => {
+  const handleConsumtion = (val) => {
     setData({
       ...data,
-      constantSpeedConsumpltionInkWhPerHundredKm: val,
+      constantSpeedConsumtion: val,
     });
   };
   const handleRange = (val) => {
@@ -111,20 +113,14 @@ const AddCarScreen = () => {
     });
   };
   const onSubmit = () => {
-    // Add a new document in collection "cities"
-    const chargeMode = [
-      {
-        chargingConnections: chargingConnections,
-        chargingCurve: chargingCurves,
-      },
-    ];
-
     setDoc(doc(db, "cars", naming.make + " " + naming.model), {
       naming: naming,
       specs: data,
-      chargingModes: chargeMode,
+      chargingModes: chargingModes,
     });
     alert("Db save");
+
+    navigate.navigate("eCharge App");
   };
   return (
     <View style={styles.container}>
@@ -197,7 +193,7 @@ const AddCarScreen = () => {
               placeholder="Constant consumpltion In kWh Per Hundred Km:"
               style={styles.textInput}
               autoCapitalize="none"
-              onChangeText={(val) => handleConsum(val)}
+              onChangeText={(val) => handleConsumtion(val)}
             />
           </View>
           <View style={styles.action}>
@@ -234,6 +230,7 @@ const AddCarScreen = () => {
             modalFunction={modalFunction}
             chargingConnection={handle_charging_connections}
             chargingCurve={handle_charging_curve}
+            chargingMode={handle_chagingmodes}
           />
           <Pressable
             style={[styles.button, styles.buttonOpen]}

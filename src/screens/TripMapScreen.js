@@ -1,9 +1,15 @@
-import { StyleSheet, Text, Touchable, View } from "react-native";
+import {
+  Pressable,
+  StyleSheet,
+  Text,
+  TouchableOpacity,
+  View,
+  Dimensions,
+} from "react-native";
 
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useRef } from "react";
 import { useSelector } from "react-redux";
-import { Button } from "@react-native-material/core";
-import { TouchableOpacity } from "react-native-gesture-handler";
+
 import MapView, { Marker } from "react-native-maps";
 import { Polyline } from "react-native-maps";
 import { doc, getDoc } from "firebase/firestore";
@@ -11,10 +17,19 @@ import { db } from "../firebase-config";
 
 const { PROVIDER_GOOGLE } = MapView;
 const TripMapScreen = ({ route }) => {
+  const mapRef = useRef(null);
   const [coords, setCoords] = useState([]);
   const user = useSelector((state) => state.user);
   const trip = useSelector((state) => state.trip);
   const [userData, setUserData] = useState({});
+  const [region, setRegion] = useState({
+    latitude: 44.3077568,
+    longitude: 23.7967414,
+    latitudeDelta: 0.000920000000000698,
+    longitudeDelta:
+      (Dimensions.get("window").width / Dimensions.get("window").height) *
+      0.0122,
+  });
 
   useEffect(() => {
     const fetchUser = async () => {
@@ -23,7 +38,6 @@ const TripMapScreen = ({ route }) => {
 
       if (docSnap.exists()) {
         const userObj = docSnap.data();
-        console.log("user log", userObj, user, trip);
         setUserData(userObj);
       } else {
         // docSnap.data() will be undefined in this case
@@ -31,36 +45,45 @@ const TripMapScreen = ({ route }) => {
       }
     };
     fetchUser();
-    getRoute();
   }, []);
   const parseRoute = (routeResponse) => {
     var rout = routeResponse.routes[0];
     var locations;
+    var routa = [];
     for (var index = 0; index < rout.legs.length; index++) {
       locations = rout.legs[index].points.map((element) => {
         return { latitude: element.latitude, longitude: element.longitude };
       });
+      routa = [...routa, ...locations];
     }
-    setCoords(locations);
-    console.log("locatopns", locations);
-    return locations;
+    setCoords(routa);
+    //getRegionForCoordinates(routa);
+    console.log("routa", trip);
   };
+  // const parseRoute = (routeResponse) => {
+  //   var rout = routeResponse.routes[0].legs[0].points;
+  //   console.log("coords", rout);
+  //   setCoords(rout);
+  // };
 
   var APIKEY = "WJ8s7PREG7SxRMtQTZaS6c0kyLjO5lfa";
 
-  const getRoute = () => {
-    var max = userData.car.specs.maxChargeInkWh;
+  const getRoute = (userVal) => {
+    var consum = "45,10:100," + userVal.car.specs.constantSpeedConsumtion;
+    var max = userVal.car.specs.maxChargeInkWh;
+    var carChargingModes = {
+      chargingModes: userVal.car.chargingModes,
+    };
     var routeOptions = {
       key: APIKEY,
       origin: trip.origin,
       destination: trip.destination,
-      vehicleWeight: userData.car.specs.vehicleWeight,
-      maxCharge: userData.car.specs.maxChargeInkWh,
+      vehicleWeight: userVal.car.specs.vehicleWeight,
+      maxCharge: userVal.car.specs.maxChargeInkWh,
       minFinalCharge: max * 0.2,
       minChargeAtStop: max * 0.2,
-      speedConsumption:
-        userData.car.specs.constantSpeedConsumpltionInkWhPerHundredKm,
-      chargingModes: userData.car.chargingModes,
+      speedConsumption: consum,
+      chargingModes: carChargingModes,
     };
     calculateRoute(routeOptions);
   };
@@ -72,17 +95,17 @@ const TripMapScreen = ({ route }) => {
       baseUrl +
       options.origin.lat +
       "," +
-      options.origin.lon +
+      options.origin.lng +
       ":" +
       options.destination.lat +
       "," +
-      options.destination.lon +
+      options.destination.lng +
       "/json?key=" +
       APIKEY +
       "&vehicleEngineType=electric&constantSpeedConsumptionInkWhPerHundredkm=" +
       options.speedConsumption +
       "&currentChargeInkWh=" +
-      audi.currentChargeInkWh +
+      trip.currentChargeInkWh +
       "&maxChargeInkWh=" +
       options.maxCharge +
       "&minChargeAtDestinationInkWh=" +
@@ -94,7 +117,9 @@ const TripMapScreen = ({ route }) => {
   };
   var calculateRoute = (routeOptions) => {
     var rute = {};
+
     var url = buildURL(routeOptions);
+    console.log(routeOptions.chargingModes);
     postData(url, routeOptions.chargingModes)
       .then((data) => parseRoute(data))
       .catch((err) => console.error(err));
@@ -110,19 +135,88 @@ const TripMapScreen = ({ route }) => {
       body: JSON.stringify(data),
     }).then((response) => response.json());
   }
+  // const setRegionCoords = (coords) => {
+  //   let sumLat = coords.reduce((a, c) => {
+  //     return parseFloat(a) + parseFloat(c.latitude);
+  //   }, 0);
+  //   let sumLong = coords.reduce((a, c) => {
+  //     return parseFloat(a) + parseFloat(c.longitude);
+  //   }, 0);
+
+  //   let avgLat = sumLat / coords.length || 0;
+  //   let avgLong = sumLong / coords.length || 0;
+
+  //   setRegion({
+  //     latitude: parseFloat(avgLat),
+  //     longitude: avgLong,
+  //     latitudeDelta: 0.2,
+  //     longitudeDelta: 0.2,
+  //   });
+  // };
+  const getRegionForCoordinates = (points) => {
+    let minLat = Math.min(...points.map((p) => p.latitude));
+    let maxLat = Math.max(...points.map((p) => p.latitude));
+    let minLon = Math.min(...points.map((p) => p.longitude));
+    let maxLon = Math.max(...points.map((p) => p.longitude));
+
+    const midX = (minLat + maxLat) / 2;
+    const midY = (minLon + maxLon) / 2;
+    const deltaX = maxLat - minLat + 0.1;
+    const deltaY = maxLon - minLon;
+    setRegion({
+      latitude: midX,
+      longitude: midY,
+      latitudeDelta: deltaX,
+      longitudeDelta: deltaY,
+    });
+    mapRef.current.animateToRegion({
+      ...region,
+      latitude: region.latitude,
+      longitude: region.longitude,
+    });
+  };
   return (
     <View style={styles.container}>
       <MapView
+        ref={mapRef}
         style={styles.map}
         initialRegion={{
-          latitude: 37.78825,
-          longitude: -122.4324,
-          latitudeDelta: 0.0922,
-          longitudeDelta: 0.0421,
+          latitude: 44.3077568,
+          longitude: 23.7967414,
+          latitudeDelta: 0.000920000000000698,
+          longitudeDelta:
+            (Dimensions.get("window").width / Dimensions.get("window").height) *
+            0.0122,
         }}
       >
-        <Polyline coordinates={coords} />
+        <Polyline
+          coordinates={coords[0]}
+          strokeColor="#009387"
+          strokeWidth={3}
+        />
       </MapView>
+      <TouchableOpacity
+        onPress={() => getRoute(userData)}
+        style={[
+          styles.signIn,
+          {
+            borderColor: "#009387",
+            borderWidth: 1,
+            marginTop: 15,
+          },
+        ]}
+      >
+        <Text
+          style={[
+            styles.textSign,
+            {
+              color: "#009387",
+            },
+          ]}
+        >
+          Create
+        </Text>
+      </TouchableOpacity>
     </View>
   );
 };
@@ -138,5 +232,16 @@ const styles = StyleSheet.create({
   },
   map: {
     ...StyleSheet.absoluteFillObject,
+  },
+  signIn: {
+    width: "100%",
+    height: 50,
+    justifyContent: "center",
+    alignItems: "center",
+    borderRadius: 10,
+  },
+  textSign: {
+    fontSize: 18,
+    fontWeight: "bold",
   },
 });

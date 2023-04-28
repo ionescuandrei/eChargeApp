@@ -57,10 +57,10 @@ const CarChargingMode = ({
     setPlugType(val);
   };
   const handle_chargeInKwh = (val) => {
-    setChargeInkWh(val);
+    setChargeInkWh(parseFloat(val));
   };
   const handle_timeToCharge = (val) => {
-    setTimeToChargeInSeconds(val);
+    setTimeToChargeInSeconds(parseInt(val));
   };
   const onSubmit = () => {
     const obj = {
@@ -135,6 +135,7 @@ const CarChargingMode = ({
               <View style={styles.action}>
                 <TextInput
                   placeholder="Charge In kWh"
+                  inputMode="numeric"
                   style={styles.textInput}
                   autoCapitalize="none"
                   onChangeText={(val) => handle_chargeInKwh(val)}
@@ -144,6 +145,7 @@ const CarChargingMode = ({
               <View style={styles.action}>
                 <TextInput
                   placeholder="Time to charge in seconds"
+                  keyboardType="number-pad"
                   style={styles.textInput}
                   autoCapitalize="none"
                   onChangeText={(val) => handle_timeToCharge(val)}

@@ -21,7 +21,7 @@ const TripMapScreen = ({ route }) => {
   const [coords, setCoords] = useState([]);
   const user = useSelector((state) => state.user);
   const trip = useSelector((state) => state.trip);
-  const [userData, setUserData] = useState({});
+  const [userData, setUserData] = useState(null);
   const [region, setRegion] = useState({
     latitude: 44.3077568,
     longitude: 23.7967414,
@@ -39,6 +39,7 @@ const TripMapScreen = ({ route }) => {
       if (docSnap.exists()) {
         const userObj = docSnap.data();
         setUserData(userObj);
+        getRoute(userObj);
       } else {
         // docSnap.data() will be undefined in this case
         console.log("No such document!");
@@ -57,8 +58,8 @@ const TripMapScreen = ({ route }) => {
       routa = [...routa, ...locations];
     }
     setCoords(routa);
-    //getRegionForCoordinates(routa);
-    console.log("routa", trip);
+    getRegionForCoordinates(routa);
+    console.log("routa", routa);
   };
   // const parseRoute = (routeResponse) => {
   //   var rout = routeResponse.routes[0].legs[0].points;
@@ -177,23 +178,8 @@ const TripMapScreen = ({ route }) => {
   };
   return (
     <View style={styles.container}>
-      <MapView
-        ref={mapRef}
-        style={styles.map}
-        initialRegion={{
-          latitude: 44.3077568,
-          longitude: 23.7967414,
-          latitudeDelta: 0.000920000000000698,
-          longitudeDelta:
-            (Dimensions.get("window").width / Dimensions.get("window").height) *
-            0.0122,
-        }}
-      >
-        <Polyline
-          coordinates={coords[0]}
-          strokeColor="#009387"
-          strokeWidth={3}
-        />
+      <MapView ref={mapRef} style={styles.map} initialRegion={region}>
+        <Polyline coordinates={coords} strokeColor="#009387" strokeWidth={3} />
       </MapView>
       <TouchableOpacity
         onPress={() => getRoute(userData)}

@@ -29,7 +29,7 @@ const TripScreen = () => {
   const { container, body } = styles;
   const dispatch = useDispatch();
   const navigation = useNavigation();
-  GOOGLE_API_KEY = "AIzaSyBSj4fI1IG3aT9p1pU0EOBfSb5MAdtNM44";
+
   const GOOGLE_PACES_API_BASE_URL =
     "https://maps.googleapis.com/maps/api/place";
   const onChangeText = async () => {

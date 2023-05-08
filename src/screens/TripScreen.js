@@ -29,7 +29,7 @@ const TripScreen = () => {
   const { container, body } = styles;
   const dispatch = useDispatch();
   const navigation = useNavigation();
-  GOOGLE_API_KEY = "AIzaSyBSj4fI1IG3aT9p1pU0EOBfSb5MAdtNM44";
+
   const GOOGLE_PACES_API_BASE_URL =
     "https://maps.googleapis.com/maps/api/place";
   const onChangeText = async () => {
@@ -72,13 +72,7 @@ const TripScreen = () => {
     }
   };
   useDebounce(onChangeText1, 1000, [search1.term]);
-  // ==== Change No. 7====
-  /**
-   * Grab lattitude and longitude on prediction tapped
-   *    by sending another reqyest using the place id.
-   * You can check what kind of information you can get at:
-   *    https://developers.google.com/maps/documentation/places/web-service/details#PlaceDetailsRequests
-   */
+
   const onPredictionTapped = async (placeId, description) => {
     const apiUrl = `${GOOGLE_PACES_API_BASE_URL}/details/json?key=${GOOGLE_API_KEY}&place_id=${placeId}`;
     try {

@@ -5,11 +5,12 @@ import {
   TouchableOpacity,
   View,
   Dimensions,
+  ActivityIndicator,
 } from "react-native";
 
 import React, { useEffect, useState, useRef } from "react";
 import { useSelector } from "react-redux";
-
+import { useNavigation } from "@react-navigation/native";
 import MapView, { Marker } from "react-native-maps";
 import { Polyline } from "react-native-maps";
 import { doc, getDoc } from "firebase/firestore";
@@ -17,11 +18,18 @@ import { db } from "../firebase-config";
 
 const { PROVIDER_GOOGLE } = MapView;
 const TripMapScreen = ({ route }) => {
+  const navigation = useNavigation();
+  const [loading, setLoading] = useState(false);
   const mapRef = useRef(null);
   const [coords, setCoords] = useState([]);
   const user = useSelector((state) => state.user);
   const trip = useSelector((state) => state.trip);
   const [userData, setUserData] = useState(null);
+  const [startMarker, setStartMarker] = useState({});
+  const [endMarker, setEndMarker] = useState({});
+  const [chargingStations, setChargingStations] = useState([]);
+  const [summary, setSummary] = useState({});
+
   const [region, setRegion] = useState({
     latitude: 44.3077568,
     longitude: 23.7967414,
@@ -32,6 +40,7 @@ const TripMapScreen = ({ route }) => {
   });
 
   useEffect(() => {
+    setLoading(true);
     const fetchUser = async () => {
       const docRef = doc(db, "users", route.params.email);
       const docSnap = await getDoc(docRef);
@@ -47,25 +56,34 @@ const TripMapScreen = ({ route }) => {
     };
     fetchUser();
   }, []);
+
   const parseRoute = (routeResponse) => {
     var rout = routeResponse.routes[0];
     var locations;
     var routa = [];
     for (var index = 0; index < rout.legs.length; index++) {
+      setChargingStations([
+        ...chargingStations,
+        {
+          summary: rout.legs[index].summary,
+          coordinate: rout.legs[index].points[0],
+        },
+      ]);
       locations = rout.legs[index].points.map((element) => {
         return { latitude: element.latitude, longitude: element.longitude };
       });
       routa = [...routa, ...locations];
     }
     setCoords(routa);
+
+    setStartMarker(routa[0]);
+    setEndMarker(routa[routa.length - 1]);
+    setSummary(routeResponse.routes[0].summary);
+    setLoading(false);
     getRegionForCoordinates(routa);
-    console.log("routa", routa);
+    console.log("start marker", startMarker);
+    console.log("end marker", endMarker);
   };
-  // const parseRoute = (routeResponse) => {
-  //   var rout = routeResponse.routes[0].legs[0].points;
-  //   console.log("coords", rout);
-  //   setCoords(rout);
-  // };
 
   var APIKEY = "WJ8s7PREG7SxRMtQTZaS6c0kyLjO5lfa";
 
@@ -125,7 +143,7 @@ const TripMapScreen = ({ route }) => {
       .then((data) => parseRoute(data))
       .catch((err) => console.error(err));
   };
-  function postData(url = "", data = {}) {
+  async function postData(url = "", data = {}) {
     //Default options are marked with *
     return fetch(url, {
       method: "POST",
@@ -136,24 +154,7 @@ const TripMapScreen = ({ route }) => {
       body: JSON.stringify(data),
     }).then((response) => response.json());
   }
-  // const setRegionCoords = (coords) => {
-  //   let sumLat = coords.reduce((a, c) => {
-  //     return parseFloat(a) + parseFloat(c.latitude);
-  //   }, 0);
-  //   let sumLong = coords.reduce((a, c) => {
-  //     return parseFloat(a) + parseFloat(c.longitude);
-  //   }, 0);
 
-  //   let avgLat = sumLat / coords.length || 0;
-  //   let avgLong = sumLong / coords.length || 0;
-
-  //   setRegion({
-  //     latitude: parseFloat(avgLat),
-  //     longitude: avgLong,
-  //     latitudeDelta: 0.2,
-  //     longitudeDelta: 0.2,
-  //   });
-  // };
   const getRegionForCoordinates = (points) => {
     let minLat = Math.min(...points.map((p) => p.latitude));
     let maxLat = Math.max(...points.map((p) => p.latitude));
@@ -162,7 +163,7 @@ const TripMapScreen = ({ route }) => {
 
     const midX = (minLat + maxLat) / 2;
     const midY = (minLon + maxLon) / 2;
-    const deltaX = maxLat - minLat + 0.1;
+    const deltaX = maxLat - minLat + 0.8;
     const deltaY = maxLon - minLon;
     setRegion({
       latitude: midX,
@@ -171,18 +172,50 @@ const TripMapScreen = ({ route }) => {
       longitudeDelta: deltaY,
     });
     mapRef.current.animateToRegion({
-      ...region,
-      latitude: region.latitude,
-      longitude: region.longitude,
+      latitude: midX,
+      longitude: midY,
+      latitudeDelta: deltaX,
+      longitudeDelta: deltaY,
     });
   };
   return (
     <View style={styles.container}>
-      <MapView ref={mapRef} style={styles.map} initialRegion={region}>
-        <Polyline coordinates={coords} strokeColor="#009387" strokeWidth={3} />
-      </MapView>
+      {loading ? (
+        <ActivityIndicator
+          //visibility of Overlay Loading Spinner
+          visible={loading}
+          //Text with the Spinner
+          textContent={"Loading..."}
+          //Text style of the Spinner Text
+          textStyle={styles.spinnerTextStyle}
+        />
+      ) : (
+        <MapView ref={mapRef} style={styles.map} initialRegion={region}>
+          <Polyline
+            coordinates={coords}
+            strokeColor="#009387"
+            strokeWidth={3}
+          />
+          <Marker coordinate={startMarker} />
+          <Marker coordinate={endMarker} />
+          {chargingStations.map((station, index) => {
+            console.log("statio", station.coordinate);
+            // <Marker coordinate={station.coordinate} />;
+            // <TouchableOpacity>
+            //   <Marker key={index} coordinate={station.coordinate} />
+            //   <Text>{station.coordinate}</Text>
+            // </TouchableOpacity>;
+          })}
+        </MapView>
+      )}
+
       <TouchableOpacity
-        onPress={() => getRoute(userData)}
+        onPress={() => {
+          navigation.navigate("TripSummary", {
+            summary: summary,
+          });
+          console.log(summary);
+        }}
         style={[
           styles.signIn,
           {
@@ -200,7 +233,7 @@ const TripMapScreen = ({ route }) => {
             },
           ]}
         >
-          Create
+          Trip summary
         </Text>
       </TouchableOpacity>
     </View>
@@ -229,5 +262,8 @@ const styles = StyleSheet.create({
   textSign: {
     fontSize: 18,
     fontWeight: "bold",
+  },
+  spinnerTextStyle: {
+    color: "#FFF",
   },
 });

@@ -8,11 +8,10 @@ import {
   Dimensions,
   TouchableOpacity,
   Image,
-  Linking,
 } from "react-native";
 import MapView, { Marker } from "react-native-maps";
 import * as Location from "expo-location";
-// import MapDirections from "../components/MapDirections";
+
 import TouchText from "../components/TouchText";
 import { colors, device, fonts } from "../constants";
 import axios from "axios";
@@ -90,7 +89,6 @@ class MapScreen extends Component {
         }
       }, 10);
     });
-    // this.getWithinDistance();
   }
 
   getStations2(lat, long) {
@@ -116,7 +114,7 @@ class MapScreen extends Component {
           });
           return mark;
         });
-        console.log("test from getLocation2", mark);
+
         this.setState({ markers: mark });
         this.getRegionForCoordinates(mark);
       })

@@ -3,6 +3,7 @@ import { createNativeStackNavigator } from "@react-navigation/native-stack";
 import TripScreen from "../screens/TripScreen";
 import TripMapScreen from "../screens/TripMapScreen";
 import TripDetailsScreen from "../screens/TripDetailsScreen";
+import TripSummary from "../components/TripSummary";
 
 const Trip = createNativeStackNavigator();
 const TripNav = ({ route }) => {
@@ -14,14 +15,14 @@ const TripNav = ({ route }) => {
         options={{ headerShown: false }}
       />
       <Trip.Screen
-        name="TripDetailsScreen"
-        component={TripDetailsScreen}
+        name="TripSummary"
+        component={TripSummary}
         options={{ headerShown: false }}
-        initialParams={{ email: route.params.email }}
       />
       <Trip.Screen
         name="TripMapScreen"
         component={TripMapScreen}
+        options={{ headerShown: false }}
         initialParams={{ email: route.params.email }}
       />
     </Trip.Navigator>

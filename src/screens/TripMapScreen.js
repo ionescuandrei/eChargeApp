@@ -6,6 +6,7 @@ import {
   View,
   Dimensions,
   ActivityIndicator,
+  ScrollView,
 } from "react-native";
 
 import React, { useEffect, useState, useRef } from "react";
@@ -15,6 +16,10 @@ import MapView, { Marker } from "react-native-maps";
 import { Polyline } from "react-native-maps";
 import { doc, getDoc } from "firebase/firestore";
 import { db } from "../firebase-config";
+import BottomDrawer from "../components/BottomDrawer";
+const { width, height } = Dimensions.get("window");
+const CARD_HEIGHT = height / 4;
+const CARD_WIDTH = CARD_HEIGHT - 50;
 
 const { PROVIDER_GOOGLE } = MapView;
 const TripMapScreen = ({ route }) => {
@@ -29,6 +34,17 @@ const TripMapScreen = ({ route }) => {
   const [endMarker, setEndMarker] = useState({});
   const [chargingStations, setChargingStations] = useState([]);
   const [summary, setSummary] = useState({});
+  const [isBottomSheetOpen, setIsBottomSheetOpen] = useState(true);
+
+  // Function to open the bottom sheet
+  const handleOpenBottomSheet = () => {
+    setIsBottomSheetOpen(true);
+  };
+
+  // Function to close the bottom sheet
+  const handleCloseBottomSheet = () => {
+    setIsBottomSheetOpen(false);
+  };
 
   const [region, setRegion] = useState({
     latitude: 44.3077568,
@@ -60,6 +76,7 @@ const TripMapScreen = ({ route }) => {
   const parseRoute = (routeResponse) => {
     var rout = routeResponse.routes[0];
     var locations;
+
     var routa = [];
     for (var index = 0; index < rout.legs.length; index++) {
       setChargingStations([
@@ -81,8 +98,6 @@ const TripMapScreen = ({ route }) => {
     setSummary(routeResponse.routes[0].summary);
     setLoading(false);
     getRegionForCoordinates(routa);
-    console.log("start marker", startMarker);
-    console.log("end marker", endMarker);
   };
 
   var APIKEY = "WJ8s7PREG7SxRMtQTZaS6c0kyLjO5lfa";
@@ -194,21 +209,97 @@ const TripMapScreen = ({ route }) => {
           <Polyline
             coordinates={coords}
             strokeColor="#009387"
-            strokeWidth={3}
+            strokeWidth={5}
           />
           <Marker coordinate={startMarker} />
           <Marker coordinate={endMarker} />
-          {chargingStations.map((station, index) => {
-            console.log("statio", station.coordinate);
-            // <Marker coordinate={station.coordinate} />;
-            // <TouchableOpacity>
-            //   <Marker key={index} coordinate={station.coordinate} />
-            //   <Text>{station.coordinate}</Text>
-            // </TouchableOpacity>;
-          })}
+          {chargingStations &&
+            chargingStations.map((station, index) => (
+              <Marker
+                key={index}
+                coordinate={station.coordinate}
+                pinColor="green"
+              />
+            ))}
         </MapView>
       )}
+      <BottomDrawer
+        handleOpenBottomSheet={handleOpenBottomSheet}
+        handleCloseBottomSheet={handleCloseBottomSheet}
+        isBottomSheetOpen={isBottomSheetOpen}
+      />
+      {/* <View style={styles.footer}>
+        <Text style={styles.action}>Trip asasd</Text>
 
+        <ScrollView
+          scrollEventThrottle={16}
+          showsHorizontalScrollIndicator={false}
+          snapToInterval={CARD_WIDTH}
+          style={styles.scrollView}
+          contentContainerStyle={styles.endPadding}
+        >
+          {chargingStations.map((station, index) => (
+            <TouchableOpacity
+              key={index}
+              onPress={() => navigation.navigate("EVStation")}
+            >
+              <View style={styles.card}>
+                <View style={styles.textContent}>
+                  <Text numberOfLines={1} style={styles.cardtitle}>
+                    {station.summary.lengthInMeters}
+                  </Text>
+                </View>
+              </View>
+            </TouchableOpacity>
+          ))}
+        </ScrollView>
+      </View> */}
+      {/* <ScrollView
+        
+        scrollEventThrottle={16}
+        showsHorizontalScrollIndicator={false}
+        snapToInterval={CARD_WIDTH}
+        style={styles.scrollView}
+        contentContainerStyle={styles.endPadding}
+      >
+        {chargingStations.map((station, index) => (
+          <TouchableOpacity
+            key={index}
+            onPress={() => navigation.navigate("EVStation")}
+          >
+            <View style={styles.card}>
+              <View style={styles.textContent}>
+                <Text numberOfLines={1} style={styles.cardtitle}>
+                  Charging point {station.summary.chargingParkName}
+                </Text>
+              </View>
+            </View>
+          </TouchableOpacity>
+        ))}
+      </ScrollView> */}
+      <TouchableOpacity
+        onPress={handleOpenBottomSheet}
+        style={{
+          width: "90%",
+          alignItems: "center",
+          justifyContent: "center",
+          borderWidth: 1,
+          borderColor: "#86827e",
+          paddingVertical: 12,
+          borderRadius: 8,
+        }}
+      >
+        <Text
+          style={[
+            styles.textSign,
+            {
+              color: "#009387",
+            },
+          ]}
+        >
+          Trip
+        </Text>
+      </TouchableOpacity>
       <TouchableOpacity
         onPress={() => {
           navigation.navigate("TripSummary", {
@@ -243,14 +334,37 @@ const TripMapScreen = ({ route }) => {
 export default TripMapScreen;
 
 const styles = StyleSheet.create({
-  container: {
-    ...StyleSheet.absoluteFillObject,
-    flex: 1, //the container will fill the whole screen.
-    justifyContent: "flex-end",
-    alignItems: "center",
-  },
+  // container: {
+  //   ...StyleSheet.absoluteFillObject,
+  //   flex: 1, //the container will fill the whole screen.
+  //   justifyContent: "flex-end",
+  //   alignItems: "center",
+  // },
   map: {
+    flex: 1,
+    justifyContent: "flex-end",
+    paddingHorizontal: 20,
+    paddingBottom: 400,
     ...StyleSheet.absoluteFillObject,
+  },
+  container: {
+    flex: 1,
+  },
+
+  footer: {
+    flex: Platform.OS === "ios" ? 3 : 5,
+    borderTopLeftRadius: 30,
+    borderTopRightRadius: 30,
+    paddingHorizontal: 10,
+    paddingVertical: 10,
+  },
+  action: {
+    flexDirection: "row",
+    marginTop: 5,
+    borderBottomWidth: 1,
+    paddingBottom: 5,
+    textAlign: "center",
+    fontSize: 18,
   },
   signIn: {
     width: "100%",
@@ -265,5 +379,37 @@ const styles = StyleSheet.create({
   },
   spinnerTextStyle: {
     color: "#FFF",
+  },
+  card: {
+    padding: 5,
+    elevation: 2,
+    borderTopLeftRadius: 5,
+    borderTopRightRadius: 5,
+    borderBottomLeftRadius: 5,
+    borderBottomRightRadius: 5,
+    marginHorizontal: 20,
+    shadowColor: "#000",
+    shadowRadius: 2,
+    shadowOpacity: 0.3,
+    shadowOffset: { x: 2, y: -2 },
+    height: 60,
+    overflow: "hidden",
+  },
+  cardImage: {
+    flex: 3,
+    width: "100%",
+    height: "100%",
+    alignSelf: "center",
+  },
+  textContent: {
+    flex: 1,
+  },
+  cardtitle: {
+    fontSize: 6,
+
+    fontWeight: "bold",
+  },
+  cardDescription: {
+    fontSize: 12,
   },
 });

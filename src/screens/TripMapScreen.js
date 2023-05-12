@@ -35,6 +35,7 @@ const TripMapScreen = ({ route }) => {
   const [chargingStations, setChargingStations] = useState([]);
   const [summary, setSummary] = useState({});
   const [isBottomSheetOpen, setIsBottomSheetOpen] = useState(true);
+  const [numberOfCharges, setNumberOfCharges] = useState(0);
 
   // Function to open the bottom sheet
   const handleOpenBottomSheet = () => {
@@ -79,20 +80,24 @@ const TripMapScreen = ({ route }) => {
 
     var routa = [];
     for (var index = 0; index < rout.legs.length; index++) {
-      setChargingStations([
-        ...chargingStations,
-        {
-          summary: rout.legs[index].summary,
-          coordinate: rout.legs[index].points[0],
-        },
-      ]);
+      if (index < rout.legs.length - 1) {
+        setChargingStations([
+          ...chargingStations,
+          {
+            summary: rout.legs[index].summary,
+            coordinate: rout.legs[index].points[0],
+          },
+        ]);
+        console.log(rout.legs[index].summary);
+      }
+
       locations = rout.legs[index].points.map((element) => {
         return { latitude: element.latitude, longitude: element.longitude };
       });
       routa = [...routa, ...locations];
     }
     setCoords(routa);
-
+    setNumberOfCharges(rout.legs.length - 1);
     setStartMarker(routa[0]);
     setEndMarker(routa[routa.length - 1]);
     setSummary(routeResponse.routes[0].summary);
@@ -224,9 +229,13 @@ const TripMapScreen = ({ route }) => {
         </MapView>
       )}
       <BottomDrawer
+        numberOfCharges={numberOfCharges}
         handleOpenBottomSheet={handleOpenBottomSheet}
         handleCloseBottomSheet={handleCloseBottomSheet}
         isBottomSheetOpen={isBottomSheetOpen}
+        chargingStations={chargingStations}
+        summary={summary}
+        trip={trip}
       />
       {/* <View style={styles.footer}>
         <Text style={styles.action}>Trip asasd</Text>
@@ -279,15 +288,14 @@ const TripMapScreen = ({ route }) => {
       </ScrollView> */}
       <TouchableOpacity
         onPress={handleOpenBottomSheet}
-        style={{
-          width: "90%",
-          alignItems: "center",
-          justifyContent: "center",
-          borderWidth: 1,
-          borderColor: "#86827e",
-          paddingVertical: 12,
-          borderRadius: 8,
-        }}
+        style={[
+          styles.signIn,
+          {
+            borderColor: "#009387",
+            borderWidth: 1,
+            marginTop: 15,
+          },
+        ]}
       >
         <Text
           style={[

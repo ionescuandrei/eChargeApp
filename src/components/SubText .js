@@ -9,7 +9,7 @@ const SubText = ({
   color,
   family,
   letterSpacing,
-  align = "left",
+  align = "center",
   leading,
 }) => {
   return (

@@ -3,8 +3,9 @@ const initialState = {
   origin: null,
   destination: null,
   currentChargeInkWh: 0,
-  apiData: null,
-  markers: [],
+
+  originLocation: "",
+  destinationLocation: "",
 };
 
 const tripSlice = createSlice({
@@ -26,8 +27,20 @@ const tripSlice = createSlice({
     setMarkers: (state, action) => {
       state.markers = [...action.payload];
     },
+    setOriginLocation: (state, action) => {
+      state.originLocation = action.payload;
+    },
+    setDestinationLocation: (state, action) => {
+      state.destinationLocation = action.payload;
+    },
   },
 });
-export const { setOrigin, setDestination, setCarCharge, setApiData } =
-  tripSlice.actions;
+export const {
+  setOrigin,
+  setDestination,
+  setCarCharge,
+  setApiData,
+  setOriginLocation,
+  setDestinationLocation,
+} = tripSlice.actions;
 export default tripSlice.reducer;

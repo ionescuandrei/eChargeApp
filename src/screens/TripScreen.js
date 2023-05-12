@@ -15,7 +15,13 @@ import { useDebounce } from "../utility/useDebounce";
 import Slider from "@react-native-community/slider";
 import images from "../utility/images";
 import { Badge, Stack } from "@react-native-material/core";
-import { setDestination, setOrigin, setCarCharge } from "../redux/tripSlice";
+import {
+  setDestination,
+  setOrigin,
+  setCarCharge,
+  setOriginLocation,
+  setDestinationLocation,
+} from "../redux/tripSlice";
 import { useNavigation } from "@react-navigation/native";
 
 const TripScreen = () => {
@@ -92,6 +98,7 @@ const TripScreen = () => {
         dispatch(setOrigin(location));
         setShowPredictions(false);
         setSearch({ term: description });
+        dispatch(setOriginLocation(description));
       }
     } catch (e) {
       console.log(e);
@@ -116,6 +123,7 @@ const TripScreen = () => {
         dispatch(setDestination(location));
         setShowPredictions1(false);
         setSearch1({ term: description });
+        dispatch(setDestinationLocation(description));
       }
     } catch (e) {
       console.log(e);

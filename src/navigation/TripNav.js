@@ -13,11 +13,18 @@ const TripNav = ({ route }) => {
         name="TripScreen"
         component={TripScreen}
         options={{ headerShown: false }}
+        initialParams={{ email: route.params.email }}
       />
       <Trip.Screen
         name="TripSummary"
         component={TripSummary}
         options={{ headerShown: false }}
+      />
+      <Trip.Screen
+        name="TripDetailScreen"
+        component={TripDetailsScreen}
+        options={{ headerShown: false }}
+        initialParams={{ email: route.params.email }}
       />
       <Trip.Screen
         name="TripMapScreen"

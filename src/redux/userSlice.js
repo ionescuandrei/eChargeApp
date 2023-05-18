@@ -33,9 +33,7 @@ const userSlice = createSlice({
     setLocation: (state, action) => {
       state.location = action.payload;
     },
-    setUser: (state, action) => {},
   },
 });
-export const { setEmail, setProfile, setCar, setLocation, setUser } =
-  userSlice.actions;
+export const { setEmail, setProfile, setCar, setLocation } = userSlice.actions;
 export default userSlice.reducer;

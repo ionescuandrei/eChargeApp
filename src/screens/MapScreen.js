@@ -165,7 +165,7 @@ class MapScreen extends Component {
     let { status } = await Location.requestForegroundPermissionsAsync();
 
     if (status !== "granted") {
-      console.log("nit granted");
+      console.log("niet granted");
       return;
     }
 

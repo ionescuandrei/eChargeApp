@@ -6,6 +6,9 @@ const initialState = {
 
   originLocation: "",
   destinationLocation: "",
+  avgSpeed: 0,
+  addWeight: 0,
+  departTime: "",
 };
 
 const tripSlice = createSlice({
@@ -33,6 +36,15 @@ const tripSlice = createSlice({
     setDestinationLocation: (state, action) => {
       state.destinationLocation = action.payload;
     },
+    setDepartData: (state, action) => {
+      state.departTime = action.payload;
+    },
+    setSpeed: (state, action) => {
+      state.avgSpeed = action.payload;
+    },
+    setWeight: (state, action) => {
+      state.addWeight = action.payload;
+    },
   },
 });
 export const {
@@ -42,5 +54,8 @@ export const {
   setApiData,
   setOriginLocation,
   setDestinationLocation,
+  setDepartData,
+  setSpeed,
+  setWeight,
 } = tripSlice.actions;
 export default tripSlice.reducer;

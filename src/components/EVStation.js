@@ -1,16 +1,43 @@
-import { StyleSheet, Text, View, ScrollView } from "react-native";
+import {
+  StyleSheet,
+  Text,
+  View,
+  ScrollView,
+  Linking,
+  Platform,
+  TouchableOpacity,
+  Divider,
+  Alert,
+} from "react-native";
+import Icon from "@expo/vector-icons/FontAwesome5";
 
 const EVStation = ({ route, navigation }) => {
   const { itemId, marker } = route.params;
+  console.log(marker.poi);
+  const callNumber = () => {
+    let phone = marker.poi.phone;
+    let phoneNumber = phone;
+    if (Platform.OS !== "android") {
+      phoneNumber = `telprompt:${marker.poi.phone}`;
+    } else {
+      phoneNumber = `tel:${marker.poi.phone}`;
+    }
+    Linking.openURL(phoneNumber);
+  };
   return (
     <ScrollView style={styles.styleScrol}>
       <View style={[styles.container]}>
-        <View style={styles.subContainer}>
-          <View style={styles.textContainer}>
-            <View style={styles.placeNameTitle}>
-              <Text style={styles.placeName}>{marker.poi.name}</Text>
-              <Text>Adress: {marker.address.freeformAddress}</Text>
-            </View>
+        <View style={styles.placeNameTitle}>
+          <Text style={styles.placeName}>{marker.poi.name}</Text>
+          <Text>Adress: {marker.address.freeformAddress}</Text>
+
+          <View style={styles.adressContainer}>
+            <Text style={styles.adressStyle}>Pentru rezervări sună la</Text>
+            <TouchableOpacity onPress={callNumber}>
+              <View style={styles.callButton}>
+                <Icon name="phone" size={24} />
+              </View>
+            </TouchableOpacity>
           </View>
         </View>
       </View>
@@ -25,27 +52,10 @@ const styles = StyleSheet.create({
   container: {
     display: "flex",
   },
-  subContainer: {
-    flex: 1,
-    margin: 15,
-  },
-  portraitContainer: {
-    flexDirection: "column",
-  },
-  // landscapeContainer: {
-  //   flexDirection: "row"
-  // },
-  placeImagePortret: {
-    width: 500,
-    height: 250,
-  },
-  placeImageLandscape: {
-    alignSelf: "center",
-    width: 500,
-    height: 250,
-  },
+
   placeNameTitle: {
-    alignItems: "flex-start",
+    alignItems: "center",
+    marginTop: 15,
   },
   badgeContaniner: {
     alignItems: "center",
@@ -65,7 +75,6 @@ const styles = StyleSheet.create({
   },
   adressStyle: {
     fontSize: 20,
-    fontFamily: "Times New Roman",
   },
   textContainer: {
     flex: 1,

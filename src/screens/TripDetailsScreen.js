@@ -1,172 +1,159 @@
 import {
-  Pressable,
   StyleSheet,
-  StatusBar,
-  SafeAreaView,
+  Text,
   View,
+  StatusBar,
+  ScrollView,
+  Pressable,
 } from "react-native";
-
-import React, { useEffect, useState } from "react";
-import { useSelector, useDispatch } from "react-redux";
-import { doc, getDoc } from "firebase/firestore";
-import { db } from "../firebase-config";
-import { Text, TextInput } from "@react-native-material/core";
-import { setApiData } from "../redux/tripSlice";
-import { useNavigation } from "@react-navigation/native";
+import React, { useState } from "react";
 import Slider from "@react-native-community/slider";
+import DateTimePicker from "@react-native-community/datetimepicker";
+import { Badge } from "@react-native-material/core";
+import { useDispatch, useSelector } from "react-redux";
+import { setDepartData, setWeight, setSpeed } from "../redux/tripSlice";
+import { useNavigation } from "@react-navigation/native";
 
 const TripDetailsScreen = ({ route }) => {
-  const [coords, setCoords] = useState([]);
-  const [ruta, setRuta] = useState({});
-  const [minDeviationDistance, setMinDeviationDistance] = useState(0);
-  const [traffic, setTrafic] = useState(0);
-  const [userData, setUserData] = useState({});
+  const { speed, weight } = route.params;
+  const [date, setDate] = useState(new Date());
+  const [mode, setMode] = useState("date");
+  const [show, setShow] = useState(false);
+  const [avgSpeed, setAvgSpeed] = useState(90);
+  const [addWeight, setAddWeight] = useState(1);
   const navigation = useNavigation();
   const dispatch = useDispatch();
+  const onChange = (event, selectedDate) => {
+    const currentDate = selectedDate;
+    setShow(false);
+    setDate(currentDate);
+    console.log(currentDate);
+  };
 
-  const trip = useSelector((state) => state.trip);
-  useEffect(() => {
-    const fetchUser = async () => {
-      const docRef = doc(db, "users", route.params.email);
-      const docSnap = await getDoc(docRef);
-
-      if (docSnap.exists()) {
-        const userObj = docSnap.data();
-        setUserData(userObj);
-      } else {
-        // docSnap.data() will be undefined in this case
-        console.log("No such document!");
-      }
-    };
-    fetchUser();
-  }, []);
-  const parseRoute = (routeResponse) => {
-    var rout = routeResponse.routes[0];
-
-    var locations;
-    var routa = [];
-    for (var index = 0; index < rout.legs.length; index++) {
-      locations = rout.legs[index].points.map((element) => {
-        return { latitude: element.latitude, longitude: element.longitude };
-      });
-
-      routa = [...routa, ...locations];
+  const showMode = (currentMode) => {
+    if (Platform.OS === "android") {
+      setShow(true);
     }
-    setCoords(routa);
-    setRuta(routeResponse.routes[0]);
-    // dispatch(setApiData(routeResponse.routes[0]));
+    setMode(currentMode);
   };
 
-  var APIKEY = "WJ8s7PREG7SxRMtQTZaS6c0kyLjO5lfa";
+  const showDatepicker = () => {
+    showMode("date");
+  };
 
-  const getRoute = (userVal) => {
-    var consum = "45,10:100," + userVal.car.specs.constantSpeedConsumtion;
-    var max = userVal.car.specs.maxChargeInkWh;
-    var carChargingModes = {
-      chargingModes: userVal.car.chargingModes,
-    };
-    var routeOptions = {
-      key: APIKEY,
-      origin: trip.origin,
-      destination: trip.destination,
-      vehicleWeight: userVal.car.specs.vehicleWeight,
-      maxCharge: userVal.car.specs.maxChargeInkWh,
-      minFinalCharge: max * 0.2,
-      minChargeAtStop: max * 0.2,
-      speedConsumption: consum,
-      chargingModes: carChargingModes,
-    };
-    calculateRoute(routeOptions);
-    navigation.navigate("TripMapScreen", { ruta: ruta });
+  const showTimepicker = () => {
+    showMode("time");
   };
-  // Calculate the Route here
-  var baseUrl =
-    "https://api.tomtom.com/routing/1/calculateLongDistanceEVRoute/";
-  var buildURL = (options) => {
-    var url =
-      baseUrl +
-      options.origin.lat +
-      "," +
-      options.origin.lng +
-      ":" +
-      options.destination.lat +
-      "," +
-      options.destination.lng +
-      "/json?key=" +
-      APIKEY +
-      "&vehicleEngineType=electric&constantSpeedConsumptionInkWhPerHundredkm=" +
-      options.speedConsumption +
-      "&currentChargeInkWh=" +
-      trip.currentChargeInkWh +
-      "&maxChargeInkWh=" +
-      options.maxCharge +
-      "&minChargeAtDestinationInkWh=" +
-      options.minFinalCharge +
-      "&minChargeAtChargingStopsInkWh=" +
-      options.minChargeAtStop;
-    console.log("url = ", url);
-    return url;
+  const handleAvgSpeed = (speed) => {
+    setAvgSpeed(speed);
   };
-  var calculateRoute = (routeOptions) => {
-    var url = buildURL(routeOptions);
-
-    postData(url, routeOptions.chargingModes)
-      .then((data) => parseRoute(data))
-      .catch((err) => console.error(err));
+  const handleWeight = (kg) => {
+    setAddWeight(kg);
   };
-  function postData(url = "", data = {}) {
-    //Default options are marked with *
-    return fetch(url, {
-      method: "POST",
-      cache: "no-cache",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify(data),
-    })
-      .then((response) => response.json())
-      .catch((e) => console.log(e));
-  }
+  const submit = () => {
+    dispatch(setDepartData(date.toISOString()));
+    dispatch(setSpeed(avgSpeed));
+    dispatch(setWeight(addWeight));
+    navigation.navigate("TripMapScreen");
+  };
   return (
     <View style={styles.container}>
       <StatusBar backgroundColor="#009387" barStyle="light-content" />
       <View style={styles.header}>
-        <Text style={styles.text_header}>Create Itinerary</Text>
+        <Text style={styles.text_header}>Settings</Text>
       </View>
-      <SafeAreaView style={styles.footer}>
-        <View>
+      <View style={styles.footer}>
+        <ScrollView>
           <View>
-            <Text styles={styles.textTitle}>Naming</Text>
+            <Text style={styles.textContent}>Choose depart time and date</Text>
+            <View style={styles.action}>
+              <Pressable onPress={showDatepicker}>
+                <Text>
+                  {date.toLocaleString().substring(0, 10)}
+                  {date.toLocaleString().substring(19)}
+                </Text>
+              </Pressable>
+            </View>
+
+            <View style={styles.action}>
+              <Pressable onPress={showTimepicker}>
+                <Text>{date.toLocaleString().substring(11, 19)}</Text>
+              </Pressable>
+            </View>
+
+            {show && (
+              <DateTimePicker
+                testID="dateTimePicker"
+                value={date}
+                mode={mode}
+                is24Hour={true}
+                onChange={onChange}
+              />
+            )}
           </View>
-          <View style={styles.action}>
-            <TextInput
-              placeholder="Trafic"
-              style={styles.textInput}
-              autoCapitalize="none"
-              onChangeText={(val) => handleMarca(val)}
+          <View style={{ marginVertical: 20 }}>
+            <Text style={styles.textContent}>Average Speed (km/h)</Text>
+            <View
+              style={{
+                position: "absolute",
+                height: 30,
+                width: 50,
+                left: 280,
+                top: 10,
+              }}
+            >
+              <Badge label={avgSpeed} max={200} color="#009387" />
+            </View>
+            <Slider
+              step={1}
+              style={styles.slider}
+              minimumValue={1}
+              maximumValue={120}
+              minimumTrackTintColor="#009387"
+              maximumTrackTintColor="#000000"
+              onSlidingComplete={(val) => handleAvgSpeed(val)}
             />
           </View>
-          <Text>Charge Level (kwh)</Text>
-          <Slider
-            minimumValue={1}
-            maximumValue={50}
-            minimumTrackTintColor="#009387"
-            maximumTrackTintColor="#000000"
-          />
 
-          <Pressable
-            style={[styles.button, styles.buttonOpen]}
-            onPress={() => getRoute(userData)}
-          >
-            <Text style={styles.textStyle}>Create</Text>
-          </Pressable>
-        </View>
-      </SafeAreaView>
+          <View style={{ marginVertical: 5 }}>
+            <Text style={styles.textContent}>
+              Payload added to your car eg. people, suitcases(kg)
+            </Text>
+            <View
+              style={{
+                position: "absolute",
+                height: 30,
+                width: 50,
+                left: 280,
+                top: 30,
+              }}
+            >
+              <Badge label={addWeight} max={1000} color="#009387" />
+            </View>
+            <Slider
+              step={1}
+              style={styles.slider}
+              minimumValue={1}
+              maximumValue={1000}
+              minimumTrackTintColor="#009387"
+              maximumTrackTintColor="#000000"
+              onSlidingComplete={(val) => handleWeight(val)}
+            />
+            <Pressable
+              style={[styles.button, styles.buttonOpen]}
+              onPress={submit}
+            >
+              <Text style={styles.textStyle}>Next</Text>
+            </Pressable>
+          </View>
+        </ScrollView>
+      </View>
     </View>
   );
 };
 
 export default TripDetailsScreen;
+
 const styles = StyleSheet.create({
   container: {
     flex: 1,
@@ -178,7 +165,6 @@ const styles = StyleSheet.create({
     paddingHorizontal: 20,
     paddingBottom: 50,
   },
-
   footer: {
     flex: Platform.OS === "ios" ? 3 : 5,
     backgroundColor: "#fff",
@@ -192,31 +178,41 @@ const styles = StyleSheet.create({
     fontWeight: "bold",
     fontSize: 30,
   },
-  body: {
-    paddingHorizontal: 20,
+  text_footer: {
+    color: "#05375a",
+    fontSize: 18,
   },
+  textContent: {
+    fontSize: 18,
+    fontWeight: "bold",
+  },
+  action: {
+    flexDirection: "row",
+    marginTop: 10,
+    marginHorizontal: 30,
+    backgroundColor: "rgb(235,235,235)",
+    borderBottomWidth: 1,
+    borderBottomColor: "#f2f2f2",
+    paddingBottom: 5,
+    borderTopLeftRadius: 10,
+    borderTopRightRadius: 10,
+    borderBottomLeftRadius: 10,
+    borderBottomRightRadius: 10,
+    height: 40,
+    justifyContent: "center",
+    alignItems: "center",
+  },
+  slider: { marginVertical: 20, marginHorizontal: 5 },
+
   button: {
     borderRadius: 20,
     padding: 5,
     elevation: 2,
+    height: 30,
+    marginTop: 40,
   },
   buttonOpen: {
     backgroundColor: "#009387",
   },
-  textStyle: {
-    color: "white",
-    fontWeight: "bold",
-    textAlign: "center",
-  },
-  containerImage: {
-    flex: 1,
-    backgroundColor: "#fff",
-    alignItems: "center",
-    justifyContent: "center",
-  },
-  image: {
-    flex: 1,
-    width: "100%",
-    backgroundColor: "#0553",
-  },
+  textStyle: { alignSelf: "center" },
 });

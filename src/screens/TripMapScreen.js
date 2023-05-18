@@ -85,7 +85,7 @@ const TripMapScreen = ({ route }) => {
           ...chargingStations,
           {
             summary: rout.legs[index].summary,
-            coordinate: rout.legs[index].points[0],
+            coordinate: rout.legs[index + 1].points[0],
           },
         ]);
         console.log(rout.legs[index].summary);
@@ -110,6 +110,7 @@ const TripMapScreen = ({ route }) => {
   const getRoute = (userVal) => {
     var consum = "45,10:100," + userVal.car.specs.constantSpeedConsumtion;
     var max = userVal.car.specs.maxChargeInkWh;
+    console.log("depart", trip.departTime);
     var carChargingModes = {
       chargingModes: userVal.car.chargingModes,
     };
@@ -147,6 +148,8 @@ const TripMapScreen = ({ route }) => {
       trip.currentChargeInkWh +
       "&maxChargeInkWh=" +
       options.maxCharge +
+      "&departAt=" +
+      trip.departTime +
       "&minChargeAtDestinationInkWh=" +
       options.minFinalCharge +
       "&minChargeAtChargingStopsInkWh=" +
@@ -237,55 +240,6 @@ const TripMapScreen = ({ route }) => {
         summary={summary}
         trip={trip}
       />
-      {/* <View style={styles.footer}>
-        <Text style={styles.action}>Trip asasd</Text>
-
-        <ScrollView
-          scrollEventThrottle={16}
-          showsHorizontalScrollIndicator={false}
-          snapToInterval={CARD_WIDTH}
-          style={styles.scrollView}
-          contentContainerStyle={styles.endPadding}
-        >
-          {chargingStations.map((station, index) => (
-            <TouchableOpacity
-              key={index}
-              onPress={() => navigation.navigate("EVStation")}
-            >
-              <View style={styles.card}>
-                <View style={styles.textContent}>
-                  <Text numberOfLines={1} style={styles.cardtitle}>
-                    {station.summary.lengthInMeters}
-                  </Text>
-                </View>
-              </View>
-            </TouchableOpacity>
-          ))}
-        </ScrollView>
-      </View> */}
-      {/* <ScrollView
-        
-        scrollEventThrottle={16}
-        showsHorizontalScrollIndicator={false}
-        snapToInterval={CARD_WIDTH}
-        style={styles.scrollView}
-        contentContainerStyle={styles.endPadding}
-      >
-        {chargingStations.map((station, index) => (
-          <TouchableOpacity
-            key={index}
-            onPress={() => navigation.navigate("EVStation")}
-          >
-            <View style={styles.card}>
-              <View style={styles.textContent}>
-                <Text numberOfLines={1} style={styles.cardtitle}>
-                  Charging point {station.summary.chargingParkName}
-                </Text>
-              </View>
-            </View>
-          </TouchableOpacity>
-        ))}
-      </ScrollView> */}
       <TouchableOpacity
         onPress={handleOpenBottomSheet}
         style={[

@@ -239,6 +239,14 @@ const BottomDrawer = ({
                       </Text>
                     </View>
                   </View>
+                  <View style={{ marginLeft: 120, justifyContent: "flex-end" }}>
+                    <Text style={styles.cardDescription}>
+                      {remainingChargeAtArrivalInkWh
+                        ? remainingChargeAtArrivalInkWh.toFixed(1)
+                        : null}{" "}
+                      kWH
+                    </Text>
+                  </View>
                 </View>
               </View>
             </View>

@@ -6,8 +6,9 @@ import {
   Text,
   Pressable,
   Image,
+  Alert,
 } from "react-native";
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import SearchBarWithAutocomplete from "../components/SearchBarWithAutocomplete";
 import axios from "axios";
@@ -15,6 +16,10 @@ import { useDebounce } from "../utility/useDebounce";
 import Slider from "@react-native-community/slider";
 import images from "../utility/images";
 import { Badge, Stack } from "@react-native-material/core";
+import Icon from "@expo/vector-icons/FontAwesome5";
+import * as Location from "expo-location";
+import { doc, getDoc } from "firebase/firestore";
+import { db } from "../firebase-config";
 import {
   setDestination,
   setOrigin,
@@ -24,7 +29,8 @@ import {
 } from "../redux/tripSlice";
 import { useNavigation } from "@react-navigation/native";
 
-const TripScreen = () => {
+const TripScreen = ({ route }) => {
+  const user = useSelector((state) => state.user);
   const [search, setSearch] = useState({ term: "", fetchPredictions: false });
   const [search1, setSearch1] = useState({ term: "", fetchPredictions: false });
   const [predictions, setPredictions] = useState([]);
@@ -32,12 +38,40 @@ const TripScreen = () => {
   const [showPredictions, setShowPredictions] = useState(true);
   const [showPredictions1, setShowPredictions1] = useState(true);
   const [chargingLevel, setChargingLevel] = useState(0);
+  const [mylocation, setMyLocation] = useState("");
+  const [showMyLocation, setShowMyLocation] = useState(true);
   const { container, body } = styles;
+  const [carMaxCharge, setCarMaxCharge] = useState(25);
+  const [carMaxSpeed, setCarMaxSpeed] = useState(50);
+  const [carMaxWeight, setCarMaxWeight] = useState(1000);
+  const [carUrl, setCarUrl] = useState(
+    "https://ev-database.org/img/auto/Renault_Twingo_ZE_2020/Renault_Twingo_ZE_2020-02.jpg"
+  );
   const dispatch = useDispatch();
   const navigation = useNavigation();
-
+  const GOOGLE_API_KEY = "AIzaSyBSj4fI1IG3aT9p1pU0EOBfSb5MAdtNM44";
   const GOOGLE_PACES_API_BASE_URL =
     "https://maps.googleapis.com/maps/api/place";
+
+  useEffect(() => {
+    const fetchUser = async () => {
+      const docRef = doc(db, "users", route.params.email);
+      const docSnap = await getDoc(docRef);
+
+      if (docSnap.exists()) {
+        const userObj = docSnap.data();
+
+        setCarMaxCharge(Math.floor(userObj.car.specs.maxChargeInkWh));
+        setCarUrl(userObj.car.specs.url);
+        setCarMaxSpeed(userObj.car.specs.topSpeed);
+        setCarMaxWeight(userObj.car.specs.vehicleWeight);
+      } else {
+        // docSnap.data() will be undefined in this case
+        console.log("No such document!");
+      }
+    };
+    fetchUser();
+  }, []);
   const onChangeText = async () => {
     if (search.term.trim() === "") return;
     if (!search.fetchPredictions) return;
@@ -120,6 +154,7 @@ const TripScreen = () => {
           },
         } = result;
         const { lat, lng } = location;
+        console.log(location);
         dispatch(setDestination(location));
         setShowPredictions1(false);
         setSearch1({ term: description });
@@ -129,30 +164,114 @@ const TripScreen = () => {
       console.log(e);
     }
   };
+  const getLocationHandler = async () => {
+    let { status } = await Location.requestForegroundPermissionsAsync();
+
+    if (status !== "granted") {
+      console.log("niet granted");
+      return;
+    }
+
+    let pos = await Location.getLastKnownPositionAsync();
+    dispatch(
+      setOrigin({
+        lat: pos.coords.latitude,
+        lng: pos.coords.longitude,
+      })
+    );
+    if (pos == null) {
+      await Location.getCurrentPositionAsync({
+        enableHighAccuracy: true,
+        maximumAge: 10000,
+        timeout: 5000,
+      })
+        .then((res) =>
+          dispatch(
+            setOrigin({
+              lat: res.coords.latitude,
+              lng: res.coords.longitude,
+            })
+          )
+        )
+        .then(async (res) => {
+          const apiUrl = `https://maps.googleapis.com/maps/api/geocode/json?latlng=${pos.coords.latitude},${pos.coords.longitude}&key=${GOOGLE_API_KEY}`;
+          console.log(apiUrl);
+          try {
+            const result = await axios
+              .request({
+                method: "post",
+                url: apiUrl,
+              })
+              .then((res) => {
+                dispatch(
+                  setOriginLocation(res.data.results[0].formatted_address)
+                );
+                setMyLocation(res.data.results[0].formatted_address);
+              });
+          } catch (e) {
+            console.log(e);
+          }
+        })
+        .catch((e) => console.log(e));
+    } else {
+      const apiUrl = `https://maps.googleapis.com/maps/api/geocode/json?latlng=${pos.coords.latitude},${pos.coords.longitude}&key=${GOOGLE_API_KEY}`;
+      console.log(apiUrl);
+      try {
+        const result = await axios
+          .request({
+            method: "post",
+            url: apiUrl,
+          })
+          .then((res) => {
+            dispatch(setOriginLocation(res.data.results[0].formatted_address));
+            setMyLocation(res.data.results[0].formatted_address);
+          });
+      } catch (e) {
+        console.log(e);
+      }
+    }
+    setShowMyLocation(false);
+  };
   const submit = () => {
     console.log("submit");
+
     dispatch(setCarCharge(chargingLevel));
-    navigation.navigate("TripMapScreen");
+    navigation.navigate("TripDetailScreen", {
+      speed: carMaxSpeed,
+      weight: carMaxWeight,
+    });
   };
   return (
     <View style={styles.container}>
-      <StatusBar backgroundColor="#009387" barStyle="light-content" />
+      <StatusBar backgroundColor="white" barStyle="light-content" />
       <View style={styles.header}>
         <Text style={styles.text_header}>Create Itinerary</Text>
       </View>
       <SafeAreaView style={styles.footer}>
         <View style={body}>
-          <Text>Origin</Text>
-          <SearchBarWithAutocomplete
-            value={search.term}
-            onChangeText={(text) => {
-              setSearch({ term: text, fetchPredictions: true });
-            }}
-            showPredictions={showPredictions}
-            predictions={predictions}
-            onPredictionTapped={onPredictionTapped}
-          />
-          <Text>Destination</Text>
+          <Text style={styles.textContent}>Origin</Text>
+          {showMyLocation ? (
+            <SearchBarWithAutocomplete
+              value={search.term}
+              onChangeText={(text) => {
+                setSearch({ term: text, fetchPredictions: true });
+              }}
+              showPredictions={showPredictions}
+              predictions={predictions}
+              onPredictionTapped={onPredictionTapped}
+            />
+          ) : (
+            <Text style={{ paddingLeft: 10, fontSize: 16 }}>{mylocation}</Text>
+          )}
+          <Pressable
+            onPress={getLocationHandler}
+            style={{ flexDirection: "row", marginVertical: 10 }}
+          >
+            <Icon name="location-arrow" size={24} />
+            <Text style={styles.textContent}>My current location</Text>
+          </Pressable>
+
+          <Text style={styles.textContent}>Destination</Text>
           <SearchBarWithAutocomplete
             value={search1.term}
             onChangeText={(text) => {
@@ -162,16 +281,22 @@ const TripScreen = () => {
             predictions={predictions1}
             onPredictionTapped={onPredictionTapped1}
           />
-          <Text>Charge Level (kwh)</Text>
-          <Slider
-            minimumValue={1}
-            maximumValue={50}
-            minimumTrackTintColor="#009387"
-            maximumTrackTintColor="#000000"
-            onSlidingComplete={(val) => setChargingLevel(val)}
-          />
+          <View style={{ marginVertical: 5 }}>
+            <Text style={styles.textContent}>Charge Level (kwh)</Text>
+            <Slider
+              minimumValue={1}
+              maximumValue={carMaxCharge}
+              minimumTrackTintColor="#009387"
+              maximumTrackTintColor="#000000"
+              onSlidingComplete={(val) => setChargingLevel(val)}
+            />
+          </View>
+
           <View style={styles.itemBadge}>
-            <Image source={images.car} style={{ height: 200, width: 350 }} />
+            <Image
+              source={{ uri: carUrl }}
+              style={{ height: 200, width: 350 }}
+            />
             <View
               style={{
                 position: "absolute",
@@ -189,7 +314,7 @@ const TripScreen = () => {
             style={[styles.button, styles.buttonOpen]}
             onPress={submit}
           >
-            <Text style={styles.textStyle}>Create</Text>
+            <Text style={styles.textStyle}>Next</Text>
           </Pressable>
         </View>
       </SafeAreaView>
@@ -215,7 +340,7 @@ const styles = StyleSheet.create({
     borderTopLeftRadius: 30,
     borderTopRightRadius: 30,
     paddingHorizontal: 20,
-    paddingVertical: 30,
+    paddingVertical: 12,
   },
   text_header: {
     color: "#fff",
@@ -248,6 +373,11 @@ const styles = StyleSheet.create({
     flex: 1,
     width: "100%",
     backgroundColor: "#0553",
+  },
+  textContent: {
+    fontSize: 20,
+    marginLeft: 10,
+    color: "#009387",
   },
 });
 export default TripScreen;

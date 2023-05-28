@@ -16,8 +16,10 @@ import { setCar } from "../redux/userSlice";
 import { doc, setDoc, getDoc } from "firebase/firestore";
 import { createUserWithEmailAndPassword } from "firebase/auth";
 import { auth, db } from "../firebase-config";
+import CarSearch from "../components/CarSearch";
 
 const CarUserScreen = () => {
+  const [selectedCar, setSelectedCar] = useState(null);
   const [selectedCarMarca, setSelectedCarMarca] = useState("");
   const [selectedCarModel, setSelectedCarModel] = useState("");
   const [filteredCar, setFilteredCar] = useState([]);
@@ -38,6 +40,10 @@ const CarUserScreen = () => {
     fetchCars();
     console.log(user);
   }, []);
+  const getItem = (item) => {
+    Alert.alert(item.naming.make + " " + item.naming.model + " is selected");
+    setSelectedCar(item);
+  };
   const handleSelectedCarModel = (itemValue) => {
     setSelectedCarMarca(itemValue);
     const filtere = cars
@@ -46,12 +52,7 @@ const CarUserScreen = () => {
     setFilteredCar(filtere);
   };
   const onSubmit = () => {
-    const userCar = cars.find(
-      (car) =>
-        car.naming.model == selectedCarModel &&
-        car.naming.make == selectedCarMarca
-    );
-    dispatch(setCar(userCar));
+    dispatch(setCar(selectedCar));
     createUserWithEmailAndPassword(auth, user.email, user.password)
       .then((userCredential) => {
         // Signed in
@@ -69,7 +70,7 @@ const CarUserScreen = () => {
       email: user.email,
       city: user.city,
       country: user.country,
-      car: userCar,
+      car: selectedCar,
     });
   };
   return (
@@ -79,8 +80,9 @@ const CarUserScreen = () => {
         <Text style={styles.text_header}>Add your car</Text>
       </View>
       <View style={styles.footer}>
-        <ScrollView>
-          <View style={{ paddingHorizontal: 15, marginTop: 15 }}>
+        <CarSearch getItem={getItem} />
+
+        {/* <View style={{ paddingHorizontal: 15, marginTop: 15 }}>
             <Text>Marca</Text>
             <Picker
               selectedValue={selectedCarMarca}
@@ -113,53 +115,52 @@ const CarUserScreen = () => {
                 />
               ))}
             </Picker>
-          </View>
+          </View> */}
 
-          <TouchableOpacity
-            onPress={onSubmit}
+        <TouchableOpacity
+          onPress={onSubmit}
+          style={[
+            styles.signIn,
+            {
+              borderColor: "#009387",
+              borderWidth: 1,
+              marginTop: 15,
+            },
+          ]}
+        >
+          <Text
             style={[
-              styles.signIn,
+              styles.textSign,
               {
-                borderColor: "#009387",
-                borderWidth: 1,
-                marginTop: 15,
+                color: "#009387",
               },
             ]}
           >
-            <Text
-              style={[
-                styles.textSign,
-                {
-                  color: "#009387",
-                },
-              ]}
-            >
-              Register
-            </Text>
-          </TouchableOpacity>
-          <TouchableOpacity
-            onPress={() => navigation.goBack()}
+            Register
+          </Text>
+        </TouchableOpacity>
+        <TouchableOpacity
+          onPress={() => navigation.goBack()}
+          style={[
+            styles.signIn,
+            {
+              borderColor: "#009387",
+              borderWidth: 1,
+              marginTop: 15,
+            },
+          ]}
+        >
+          <Text
             style={[
-              styles.signIn,
+              styles.textSign,
               {
-                borderColor: "#009387",
-                borderWidth: 1,
-                marginTop: 15,
+                color: "#009387",
               },
             ]}
           >
-            <Text
-              style={[
-                styles.textSign,
-                {
-                  color: "#009387",
-                },
-              ]}
-            >
-              Go back
-            </Text>
-          </TouchableOpacity>
-        </ScrollView>
+            Go back
+          </Text>
+        </TouchableOpacity>
       </View>
     </View>
   );

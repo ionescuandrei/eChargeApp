@@ -75,6 +75,7 @@ const TripMapScreen = ({ route }) => {
   }, []);
 
   const parseRoute = (routeResponse) => {
+    console.log(routeResponse);
     var rout = routeResponse.routes[0];
     var locations;
 
@@ -262,7 +263,7 @@ const TripMapScreen = ({ route }) => {
           Trip
         </Text>
       </TouchableOpacity>
-      <TouchableOpacity
+      {/* <TouchableOpacity
         onPress={() => {
           navigation.navigate("TripSummary", {
             summary: summary,
@@ -288,7 +289,7 @@ const TripMapScreen = ({ route }) => {
         >
           Trip summary
         </Text>
-      </TouchableOpacity>
+      </TouchableOpacity> */}
     </View>
   );
 };

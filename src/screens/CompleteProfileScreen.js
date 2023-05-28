@@ -42,7 +42,7 @@ const CompleteProfileScreen = () => {
     <View style={styles.container}>
       <StatusBar backgroundColor="#009387" barStyle="light-content" />
       <View style={styles.header}>
-        <Text style={styles.text_header}>CompleteProfileScreen</Text>
+        <Text style={styles.text_header}>Register</Text>
       </View>
       <View style={styles.footer}>
         <ScrollView>

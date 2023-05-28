@@ -8,6 +8,7 @@ import {
   Dimensions,
   TouchableOpacity,
   Image,
+  ActivityIndicator,
 } from "react-native";
 import MapView, { Marker } from "react-native-maps";
 import * as Location from "expo-location";
@@ -161,21 +162,38 @@ class MapScreen extends Component {
   //   });
   //   console.log("selcted markers", selectedMarker);
   // };
+  getCurrentLocation() {
+    const timeout = 10000;
+    return new Promise(async (resolve, reject) => {
+      setTimeout(() => {
+        reject(
+          new Error(
+            `Error getting gps location after ${(timeout * 2) / 1000} s`
+          )
+        );
+      }, timeout * 2);
+      setTimeout(async () => {
+        resolve(await Location.getLastKnownPositionAsync());
+      }, timeout);
+      resolve(await Location.getCurrentPositionAsync());
+    });
+  }
   getLocationHandler = async () => {
     let { status } = await Location.requestForegroundPermissionsAsync();
 
     if (status !== "granted") {
       console.log("niet granted");
       return;
+    } else {
+      this.getCurrentLocation();
     }
 
-    let pos = await Location.getCurrentPositionAsync();
+    let pos = await Location.getLastKnownPositionAsync();
     console.log("getLocation", pos);
     if (pos == null) {
       await Location.getCurrentPositionAsync({
-        enableHighAccuracy: true,
+        accuracy: Location.Accuracy.Highest,
         maximumAge: 10000,
-        timeout: 5000,
       })
         .then((res) =>
           this.setState((prevState) => {
@@ -279,7 +297,7 @@ class MapScreen extends Component {
 
     return (
       <View style={styles.container}>
-        {this.state.show && (
+        {this.state.show ? (
           <MapView
             ref={(map) => (this.map = map)}
             followsUserLocation
@@ -311,8 +329,16 @@ class MapScreen extends Component {
             })}
             {/* <MapDirections /> */}
           </MapView>
+        ) : (
+          <ActivityIndicator //visibility of Overlay Loading Spinner
+            visible={this.state.show}
+            //Text with the Spinner
+            textContent={"Loading..."}
+            //Text style of the Spinner Text
+            textStyle={styles.spinnerTextStyle}
+          />
         )}
-        {!this.state.show && (
+        {/* {!this.state.show && (
           <View style={styles.containerNoLocation}>
             <Text style={styles.textLocationNeeded}>
               We need your location data...
@@ -324,7 +350,7 @@ class MapScreen extends Component {
               text="Go To Permissions"
             />
           </View>
-        )}
+        )} */}
         <Text style={{ backgroundColor: "grey" }}>Nearest stations found</Text>
         <Animated.ScrollView
           horizontal
@@ -353,6 +379,7 @@ class MapScreen extends Component {
                 navigation.navigate("EVStation", {
                   itemId: index,
                   marker,
+                  mylocation: this.state.region,
                 })
               }
             >

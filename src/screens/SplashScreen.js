@@ -35,7 +35,7 @@ const SplashScreen = ({ navigation }) => {
             },
           ]}
         >
-          Stay connected with everyone!
+          Let's trip together
         </Text>
         <Text style={styles.text}>Sign in with account</Text>
         <View style={styles.button}>

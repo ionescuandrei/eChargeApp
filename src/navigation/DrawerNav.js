@@ -14,6 +14,8 @@ import AddConnector from "../screens/Drawer/AddConnector";
 import AddStation from "../screens/Drawer/AddStation";
 import { signOut } from "firebase/auth";
 import { auth } from "../firebase-config";
+import Profile from "../screens/Drawer/Profile";
+import CarSearch from "../components/CarSearch";
 
 const Drawer = createDrawerNavigator();
 
@@ -34,7 +36,7 @@ const DrawerNavigator = ({ route, navigation }) => {
         </View>
         <DrawerItemList {...props} />
         <DrawerItem
-          label="Sign Out"
+          label="               Sign Out"
           onPress={() => signOut(auth).then(() => alert("signed out"))}
         />
       </DrawerContentScrollView>
@@ -69,6 +71,21 @@ const DrawerNavigator = ({ route, navigation }) => {
         initialParams={{ email: route.params.email }}
       />
       <Drawer.Screen
+        name="Profile"
+        component={Profile}
+        options={{
+          drawerLabel: "Profile",
+          drawerIcon: ({ focused, size, color }) => (
+            <MaterialCommunityIcons
+              name="face-man-profile"
+              color={color}
+              size={size}
+            />
+          ),
+        }}
+        initialParams={{ email: route.params.email }}
+      />
+      <Drawer.Screen
         name="Add car"
         component={AddCarScreen}
         options={{
@@ -78,6 +95,7 @@ const DrawerNavigator = ({ route, navigation }) => {
           ),
         }}
       />
+
       <Drawer.Screen
         name="Add station"
         component={AddStation}
@@ -93,6 +111,20 @@ const DrawerNavigator = ({ route, navigation }) => {
         component={AddConnector}
         options={{
           drawerLabel: "Add connector",
+          drawerIcon: ({ focused, size, color }) => (
+            <MaterialCommunityIcons
+              name="location-enter"
+              color={color}
+              size={size}
+            />
+          ),
+        }}
+      />
+      <Drawer.Screen
+        name="CarSearch"
+        component={CarSearch}
+        options={{
+          drawerLabel: "Search car",
           drawerIcon: ({ focused, size, color }) => (
             <MaterialCommunityIcons
               name="location-enter"

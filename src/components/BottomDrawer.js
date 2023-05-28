@@ -80,7 +80,7 @@ const BottomDrawer = ({
                 text={
                   secondsToHms(travelTimeInSeconds) +
                   "(" +
-                  lengthInMeters / 1000 +
+                  (lengthInMeters / 1000).toFixed(1) +
                   " km)"
                 }
                 family={"sans-serif"}
@@ -194,7 +194,7 @@ const BottomDrawer = ({
                       </View>
                       <View
                         style={{
-                          marginLeft: 35,
+                          marginLeft: 5,
                           flexDirection: "row",
                           alignSelf: "flex-end",
                         }}

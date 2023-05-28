@@ -6,14 +6,15 @@ import {
   Linking,
   Platform,
   TouchableOpacity,
-  Divider,
   Alert,
+  Image,
 } from "react-native";
 import Icon from "@expo/vector-icons/FontAwesome5";
-
+import { Divider, ListItem } from "@react-native-material/core";
+import GetDirection from "./GetDirection";
 const EVStation = ({ route, navigation }) => {
-  const { itemId, marker } = route.params;
-  console.log(marker.poi);
+  const { itemId, marker, mylocation } = route.params;
+  console.log(marker);
   const callNumber = () => {
     let phone = marker.poi.phone;
     let phoneNumber = phone;
@@ -30,7 +31,7 @@ const EVStation = ({ route, navigation }) => {
         <View style={styles.placeNameTitle}>
           <Text style={styles.placeName}>{marker.poi.name}</Text>
           <Text>Adress: {marker.address.freeformAddress}</Text>
-
+          <Divider style={{ marginTop: 20 }} leadingInset={16} />
           <View style={styles.adressContainer}>
             <Text style={styles.adressStyle}>Pentru rezervări sună la</Text>
             <TouchableOpacity onPress={callNumber}>
@@ -39,7 +40,31 @@ const EVStation = ({ route, navigation }) => {
               </View>
             </TouchableOpacity>
           </View>
+          <GetDirection
+            mylocation={{
+              latitude: mylocation.latitude,
+              longitude: mylocation.longitude,
+            }}
+            location={{
+              latitude: marker.position.lat,
+              longitude: marker.position.lon,
+            }}
+          />
+          <Divider style={{ marginTop: 60 }} leadingInset={16} />
+          <View style={{ width: 300 }}>
+            <Text style={{ fontSize: 18 }}>Connectors</Text>
+            {marker.chargingPark.connectors.map((item, index) => (
+              <ListItem
+                key={index}
+                title={item.connectorType}
+                secondaryText={`Power(KW)- ${item.ratedPowerKW} | Voltage(V)- ${item.voltageV}`}
+                meta={item.currentType}
+              />
+            ))}
+          </View>
+          <Text>Distance to: {Math.round(marker.dist * 10) / 10} m</Text>
         </View>
+        <View></View>
       </View>
     </ScrollView>
   );
@@ -86,7 +111,6 @@ const styles = StyleSheet.create({
     alignItems: "center",
   },
   adressContainer: {
-    flex: 1,
     flexDirection: "row",
     justifyContent: "space-between",
   },
@@ -94,5 +118,8 @@ const styles = StyleSheet.create({
     fontSize: 20,
     fontFamily: "Times New Roman",
     alignSelf: "center",
+  },
+  callButton: {
+    marginLeft: 10,
   },
 });

@@ -131,7 +131,7 @@ const AddCarScreen = () => {
       <View style={styles.footer}>
         <ScrollView>
           <View>
-            <Text styles={styles.textTitle}>Naming</Text>
+            <Text styles={styles.text_footer}>Naming</Text>
           </View>
           <View style={styles.action}>
             <TextInput

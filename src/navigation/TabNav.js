@@ -17,7 +17,7 @@ const TabNav = ({ route, navigation }) => {
           if (route.name === "Home") {
             iconName = focused ? "map" : "map-sharp";
           } else if (route.name === "TripTab") {
-            iconName = focused ? "home" : "settings";
+            iconName = focused ? "settings" : "settings";
           }
 
           // You can return any component that you like here!

@@ -49,13 +49,14 @@ const TripScreen = ({ route }) => {
   );
   const dispatch = useDispatch();
   const navigation = useNavigation();
-  const GOOGLE_API_KEY = "AIzaSyBSj4fI1IG3aT9p1pU0EOBfSb5MAdtNM44";
+
   const GOOGLE_PACES_API_BASE_URL =
     "https://maps.googleapis.com/maps/api/place";
 
   useEffect(() => {
     const fetchUser = async () => {
       const docRef = doc(db, "users", route.params.email);
+      console.log(route.params.email);
       const docSnap = await getDoc(docRef);
 
       if (docSnap.exists()) {
@@ -207,6 +208,7 @@ const TripScreen = ({ route }) => {
                   setOriginLocation(res.data.results[0].formatted_address)
                 );
                 setMyLocation(res.data.results[0].formatted_address);
+                setSearch({ term: res.data.results[0].formatted_address });
               });
           } catch (e) {
             console.log(e);
@@ -225,6 +227,7 @@ const TripScreen = ({ route }) => {
           .then((res) => {
             dispatch(setOriginLocation(res.data.results[0].formatted_address));
             setMyLocation(res.data.results[0].formatted_address);
+            setSearch({ term: res.data.results[0].formatted_address });
           });
       } catch (e) {
         console.log(e);
@@ -233,13 +236,21 @@ const TripScreen = ({ route }) => {
     setShowMyLocation(false);
   };
   const submit = () => {
-    console.log("submit");
-
-    dispatch(setCarCharge(chargingLevel));
-    navigation.navigate("TripDetailScreen", {
-      speed: carMaxSpeed,
-      weight: carMaxWeight,
-    });
+    if (search.term.trim() == "") {
+      Alert.alert("Please enter a search term on Origin adress");
+      return;
+    } else if (search1.term.trim() == "") {
+      Alert.alert("Please enter a search term on Destination adress");
+      return;
+    } else if (chargingLevel === 0) {
+      Alert.alert("Please select charging level");
+    } else {
+      dispatch(setCarCharge(chargingLevel));
+      navigation.navigate("TripDetailScreen", {
+        speed: carMaxSpeed,
+        weight: carMaxWeight,
+      });
+    }
   };
   return (
     <View style={styles.container}>

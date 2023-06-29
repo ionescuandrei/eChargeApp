@@ -46,9 +46,7 @@ const CarUserScreen = () => {
   };
   const handleSelectedCarModel = (itemValue) => {
     setSelectedCarMarca(itemValue);
-    const filtere = cars
-      .filter((car) => car.naming.model != itemValue)
-      .map((item) => item);
+    const filtere = cars.filter((car) => car.naming.make == itemValue);
     setFilteredCar(filtere);
   };
   const onSubmit = () => {
@@ -80,42 +78,40 @@ const CarUserScreen = () => {
         <Text style={styles.text_header}>Add your car</Text>
       </View>
       <View style={styles.footer}>
-        <CarSearch getItem={getItem} />
-
-        {/* <View style={{ paddingHorizontal: 15, marginTop: 15 }}>
-            <Text>Marca</Text>
-            <Picker
-              selectedValue={selectedCarMarca}
-              onValueChange={(itemValue, itemIndex) =>
-                handleSelectedCarModel(itemValue)
-              }
-            >
-              {cars.map((item) => (
-                <Picker.Item
-                  key={item.naming.make}
-                  label={item.naming.make}
-                  value={item.naming.make}
-                />
-              ))}
-            </Picker>
-          </View>
-          <View style={{ paddingHorizontal: 15, marginTop: 15 }}>
-            <Text>Model</Text>
-            <Picker
-              selectedValue={selectedCarModel}
-              onValueChange={(itemValue, itemIndex) =>
-                setSelectedCarModel(itemValue)
-              }
-            >
-              {filteredCar.map((item) => (
-                <Picker.Item
-                  key={item.naming.model}
-                  label={item.naming.model}
-                  value={item.naming.model}
-                />
-              ))}
-            </Picker>
-          </View> */}
+        <View style={{ paddingHorizontal: 15, marginTop: 15 }}>
+          <Text>Marca</Text>
+          <Picker
+            selectedValue={selectedCarMarca}
+            onValueChange={(itemValue, itemIndex) =>
+              handleSelectedCarModel(itemValue)
+            }
+          >
+            {cars.map((item) => (
+              <Picker.Item
+                key={item.naming.make}
+                label={item.naming.make}
+                value={item.naming.make}
+              />
+            ))}
+          </Picker>
+        </View>
+        <View style={{ paddingHorizontal: 15, marginTop: 15 }}>
+          <Text>Model</Text>
+          <Picker
+            selectedValue={selectedCarModel}
+            onValueChange={(itemValue, itemIndex) =>
+              setSelectedCarModel(itemValue)
+            }
+          >
+            {filteredCar.map((item) => (
+              <Picker.Item
+                key={item.naming.model}
+                label={item.naming.model}
+                value={item.naming.model}
+              />
+            ))}
+          </Picker>
+        </View>
 
         <TouchableOpacity
           onPress={onSubmit}

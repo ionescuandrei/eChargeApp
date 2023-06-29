@@ -7,11 +7,12 @@ import {
   Dimensions,
   ActivityIndicator,
   ScrollView,
+  Alert,
 } from "react-native";
 
 import React, { useEffect, useState, useRef } from "react";
 import { useSelector } from "react-redux";
-import { useNavigation } from "@react-navigation/native";
+import { useNavigation, CommonActions } from "@react-navigation/native";
 import MapView, { Marker } from "react-native-maps";
 import { Polyline } from "react-native-maps";
 import { doc, getDoc } from "firebase/firestore";
@@ -36,6 +37,7 @@ const TripMapScreen = ({ route }) => {
   const [summary, setSummary] = useState({});
   const [isBottomSheetOpen, setIsBottomSheetOpen] = useState(true);
   const [numberOfCharges, setNumberOfCharges] = useState(0);
+  const [isRoute, setIsRoute] = useState(false);
 
   // Function to open the bottom sheet
   const handleOpenBottomSheet = () => {
@@ -76,34 +78,38 @@ const TripMapScreen = ({ route }) => {
 
   const parseRoute = (routeResponse) => {
     console.log(routeResponse);
-    var rout = routeResponse.routes[0];
-    var locations;
+    try {
+      var rout = routeResponse.routes[0];
+      var locations;
+      var routa = [];
+      for (var index = 0; index < rout.legs.length; index++) {
+        if (index < rout.legs.length - 1) {
+          setChargingStations([
+            ...chargingStations,
+            {
+              summary: rout.legs[index].summary,
+              coordinate: rout.legs[index + 1].points[0],
+            },
+          ]);
+          console.log(rout.legs[index].summary);
+        }
 
-    var routa = [];
-    for (var index = 0; index < rout.legs.length; index++) {
-      if (index < rout.legs.length - 1) {
-        setChargingStations([
-          ...chargingStations,
-          {
-            summary: rout.legs[index].summary,
-            coordinate: rout.legs[index + 1].points[0],
-          },
-        ]);
-        console.log(rout.legs[index].summary);
+        locations = rout.legs[index].points.map((element) => {
+          return { latitude: element.latitude, longitude: element.longitude };
+        });
+        routa = [...routa, ...locations];
       }
-
-      locations = rout.legs[index].points.map((element) => {
-        return { latitude: element.latitude, longitude: element.longitude };
-      });
-      routa = [...routa, ...locations];
+      setCoords(routa);
+      setNumberOfCharges(rout.legs.length - 1);
+      setStartMarker(routa[0]);
+      setEndMarker(routa[routa.length - 1]);
+      setSummary(routeResponse.routes[0].summary);
+      setLoading(false);
+      getRegionForCoordinates(routa);
+    } catch (error) {
+      Alert.alert("No route found");
+      console.log(error);
     }
-    setCoords(routa);
-    setNumberOfCharges(rout.legs.length - 1);
-    setStartMarker(routa[0]);
-    setEndMarker(routa[routa.length - 1]);
-    setSummary(routeResponse.routes[0].summary);
-    setLoading(false);
-    getRegionForCoordinates(routa);
   };
 
   var APIKEY = "WJ8s7PREG7SxRMtQTZaS6c0kyLjO5lfa";
@@ -165,7 +171,7 @@ const TripMapScreen = ({ route }) => {
     console.log(routeOptions.chargingModes);
     postData(url, routeOptions.chargingModes)
       .then((data) => parseRoute(data))
-      .catch((err) => console.error(err));
+      .catch((err) => console.error("OPSS", err));
   };
   async function postData(url = "", data = {}) {
     //Default options are marked with *
@@ -201,6 +207,14 @@ const TripMapScreen = ({ route }) => {
       latitudeDelta: deltaX,
       longitudeDelta: deltaY,
     });
+  };
+  const resetTrip = () => {
+    navigation.dispatch(
+      CommonActions.reset({
+        index: 1,
+        routes: [{ name: "TripScreen" }],
+      })
+    );
   };
   return (
     <View style={styles.container}>
@@ -263,13 +277,8 @@ const TripMapScreen = ({ route }) => {
           Trip
         </Text>
       </TouchableOpacity>
-      {/* <TouchableOpacity
-        onPress={() => {
-          navigation.navigate("TripSummary", {
-            summary: summary,
-          });
-          console.log(summary);
-        }}
+      <TouchableOpacity
+        onPress={resetTrip}
         style={[
           styles.signIn,
           {
@@ -287,9 +296,9 @@ const TripMapScreen = ({ route }) => {
             },
           ]}
         >
-          Trip summary
+          Replanning
         </Text>
-      </TouchableOpacity> */}
+      </TouchableOpacity>
     </View>
   );
 };

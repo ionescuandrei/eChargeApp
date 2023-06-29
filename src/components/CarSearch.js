@@ -16,13 +16,14 @@ import {
 import Checkbox from "expo-checkbox";
 import { getDocs, collection } from "firebase/firestore";
 import { db } from "../firebase-config";
+import { useNavigation } from "@react-navigation/native";
 
 const CarSearch = (props) => {
   const [search, setSearch] = useState("");
   const [filteredDataSource, setFilteredDataSource] = useState([]);
   const [masterDataSource, setMasterDataSource] = useState([]);
   const [isSelected, setSelection] = useState(false);
-
+  const navigation = useNavigation();
   useEffect(() => {
     let car = [];
     async function fetchCars() {
@@ -64,12 +65,10 @@ const CarSearch = (props) => {
       // Flat List Item
 
       <View style={styles.checkboxContainer}>
-        <Checkbox
-          value={isSelected}
-          onValueChange={setSelection}
-          style={styles.checkbox}
-        />
-        <Text style={styles.itemStyle} onPress={() => props.getItem(item)}>
+        <Text
+          style={styles.itemStyle}
+          onPress={() => navigation.navigate("CarSelected", { item: item })}
+        >
           {item.naming.make.toUpperCase()} {item.naming.model.toUpperCase()}
         </Text>
       </View>
@@ -128,6 +127,7 @@ const styles = StyleSheet.create({
   checkboxContainer: {
     flexDirection: "row",
     marginBottom: 20,
+    marginLeft: 10,
   },
   checkbox: {
     alignSelf: "center",

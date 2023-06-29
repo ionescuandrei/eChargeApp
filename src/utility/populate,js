@@ -1,0 +1,190 @@
+[
+  {
+    "chargingModes": [
+      {
+        "chargingConnections": [
+          {
+            "facilityType": "Charge_200_to_240V_1_Phase_at_16A",
+            "plugType": "IEC_62196_Type_2_Outlet"
+          }
+        ],
+        "charginCurve": [
+          {
+            "chargeInkWh": 57,
+            "timeToChargeInSeconds": 68000
+          }
+        ]
+      },
+      {
+        "chargingConnections": [
+          {
+            "facilityType": "Charge_200_to_240V_1_Phase_at_32A",
+            "plugType": "IEC_62196_Type_2_Outlet"
+          }
+        ],
+        "charginCurve": [
+          {
+            "chargeInkWh": 57,
+            "timeToChargeInSeconds": 33000
+          }
+        ]
+      },
+      {
+        "chargingConnections": [
+          {
+            "facilityType": "Charge_380_to_480V_3_Phase_at_16A",
+            "plugType": "IEC_62196_Type_2_Outlet"
+          }
+        ],
+        "charginCurve": [
+          {
+            "chargeInkWh": 57,
+            "timeToChargeInSeconds": 21000
+          }
+        ]
+      },
+      {
+        "chargingConnections": [
+          {
+            "facilityType": "Charge_380_to_480V_3_Phase_at_32A",
+            "plugType": "IEC_62196_Type_2_Outlet"
+          }
+        ],
+        "charginCurve": [
+          {
+            "chargeInkWh": 57,
+            "timeToChargeInSeconds": 21000
+          }
+        ]
+      },
+      {
+        "chargingConnections": [
+          {
+            "facilityType": "Charge_Direct_Current_at_50kW",
+            "plugType": "Combo_to_IEC_62196_Type_2_Base"
+          }
+        ],
+        "charginCurve": [
+          {
+            "chargeInkWh": 57,
+            "timeToChargeInSeconds": 3480
+          }
+        ]
+      },
+      {
+        "chargingConnections": [
+          {
+            "facilityType": "Charge_Direct_Current_above_50kW",
+            "plugType": "Combo_to_IEC_62196_Type_2_Base"
+          }
+        ],
+        "charginCurve": [
+          {
+            "chargeInkWh": 57,
+            "timeToChargeInSeconds": 1620
+          }
+        ]
+      },
+      {
+        "chargingModes": [
+          {
+            "chargingConnections": [
+              {
+                "facilityType": "Charge_200_to_240V_1_Phase_at_16A",
+                "plugType": "IEC_62196_Type_2_Outlet"
+              }
+            ],
+            "charginCurve": [
+              {
+                "chargeInkWh": 57,
+                "timeToChargeInSeconds": 68000
+              }
+            ]
+          },
+          {
+            "chargingConnections": [
+              {
+                "facilityType": "Charge_200_to_240V_1_Phase_at_32A",
+                "plugType": "IEC_62196_Type_2_Outlet"
+              }
+            ],
+            "charginCurve": [
+              {
+                "chargeInkWh": 57,
+                "timeToChargeInSeconds": 33000
+              }
+            ]
+          },
+          {
+            "chargingConnections": [
+              {
+                "facilityType": "Charge_380_to_480V_3_Phase_at_16A",
+                "plugType": "IEC_62196_Type_2_Outlet"
+              }
+            ],
+            "charginCurve": [
+              {
+                "chargeInkWh": 57,
+                "timeToChargeInSeconds": 21000
+              }
+            ]
+          },
+          {
+            "chargingConnections": [
+              {
+                "facilityType": "Charge_380_to_480V_3_Phase_at_32A",
+                "plugType": "IEC_62196_Type_2_Outlet"
+              }
+            ],
+            "charginCurve": [
+              {
+                "chargeInkWh": 57,
+                "timeToChargeInSeconds": 21000
+              }
+            ]
+          },
+          {
+            "chargingConnections": [
+              {
+                "facilityType": "Charge_Direct_Current_at_50kW",
+                "plugType": "Combo_to_IEC_62196_Type_2_Base"
+              }
+            ],
+            "charginCurve": [
+              {
+                "chargeInkWh": 57,
+                "timeToChargeInSeconds": 3480
+              }
+            ]
+          },
+          {
+            "chargingConnections": [
+              {
+                "facilityType": "Charge_Direct_Current_above_50kW",
+                "plugType": "Combo_to_IEC_62196_Type_2_Base"
+              }
+            ],
+            "charginCurve": [
+              {
+                "chargeInkWh": 57,
+                "timeToChargeInSeconds": 1620
+              }
+            ]
+          }
+    ],
+    "naming": {
+      "edition": "2021",
+      "make": "Tesla",
+      "model": "Model 3",
+      "version": "3"
+    },
+    "specs": {
+      "constantSpeedConsumtion": "14",
+      "maxChargeInkWh": "57",
+      "topSpeed": "225",
+      "range": "405",
+      "url": "https://ev-database.org/img/auto/Tesla_Model_3_2021/Tesla_Model_3_2021-01.jpg",
+      "vehicleWeight": "1835"
+    }
+  }
+]

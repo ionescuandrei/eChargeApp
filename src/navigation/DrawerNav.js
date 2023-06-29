@@ -16,6 +16,8 @@ import { signOut } from "firebase/auth";
 import { auth } from "../firebase-config";
 import Profile from "../screens/Drawer/Profile";
 import CarSearch from "../components/CarSearch";
+import CarSelected from "../screens/CarSelected";
+import CarNav from "./CarNav";
 
 const Drawer = createDrawerNavigator();
 
@@ -121,18 +123,20 @@ const DrawerNavigator = ({ route, navigation }) => {
         }}
       />
       <Drawer.Screen
-        name="CarSearch"
-        component={CarSearch}
+        name="CarNav"
+        component={CarNav}
         options={{
+          headerShown: false,
           drawerLabel: "Search car",
           drawerIcon: ({ focused, size, color }) => (
             <MaterialCommunityIcons
-              name="location-enter"
+              name="search-web"
               color={color}
               size={size}
             />
           ),
         }}
+        initialParams={{ email: route.params.email }}
       />
     </Drawer.Navigator>
   );

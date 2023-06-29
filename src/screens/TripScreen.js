@@ -28,7 +28,7 @@ import {
   setDestinationLocation,
 } from "../redux/tripSlice";
 import { useNavigation } from "@react-navigation/native";
-
+const GOOGLE_API_KEY = "AIzaSyBSj4fI1IG3aT9p1pU0EOBfSb5MAdtNM44";
 const TripScreen = ({ route }) => {
   const user = useSelector((state) => state.user);
   const [search, setSearch] = useState({ term: "", fetchPredictions: false });
@@ -71,8 +71,9 @@ const TripScreen = ({ route }) => {
         console.log("No such document!");
       }
     };
-    fetchUser();
-  }, []);
+    const fetchThings = navigation.addListener("focus", () => fetchUser());
+    return fetchThings;
+  }, [navigation]);
   const onChangeText = async () => {
     if (search.term.trim() === "") return;
     if (!search.fetchPredictions) return;
@@ -306,14 +307,19 @@ const TripScreen = ({ route }) => {
           <View style={styles.itemBadge}>
             <Image
               source={{ uri: carUrl }}
-              style={{ height: 200, width: 350 }}
+              style={{
+                height: 200,
+                width: 300,
+                borderRadius: 25,
+                alignSelf: "center",
+              }}
             />
             <View
               style={{
                 position: "absolute",
                 height: 30,
                 width: 50,
-                left: 10,
+                left: 20,
                 top: 10,
               }}
             >
@@ -342,7 +348,7 @@ const styles = StyleSheet.create({
     flex: 1,
     justifyContent: "flex-end",
     paddingHorizontal: 20,
-    paddingBottom: 50,
+    paddingBottom: 1,
   },
 
   footer: {
@@ -350,7 +356,7 @@ const styles = StyleSheet.create({
     backgroundColor: "#fff",
     borderTopLeftRadius: 30,
     borderTopRightRadius: 30,
-    paddingHorizontal: 20,
+    paddingHorizontal: 10,
     paddingVertical: 12,
   },
   text_header: {
@@ -382,7 +388,7 @@ const styles = StyleSheet.create({
   },
   image: {
     flex: 1,
-    width: "100%",
+    width: "90%",
     backgroundColor: "#0553",
   },
   textContent: {

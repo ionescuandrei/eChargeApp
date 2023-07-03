@@ -206,11 +206,9 @@ const BottomDrawer = ({
                         </Text>
                         <Icon name="long-arrow-alt-right" size={12} />
                         <Text style={styles.cardDescription}>
-                          {(
-                            station.summary.remainingChargeAtArrivalInkWh +
-                            station.summary.chargingInformationAtEndOfLeg
-                              .targetChargeInkWh
-                          ).toFixed(1)}
+                          {station.summary.chargingInformationAtEndOfLeg.targetChargeInkWh.toFixed(
+                            1
+                          )}
                           kWH
                         </Text>
                       </View>

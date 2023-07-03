@@ -48,6 +48,7 @@ const CarUserScreen = () => {
     setSelectedCarMarca(itemValue);
     const filtere = cars.filter((car) => car.naming.make == itemValue);
     setFilteredCar(filtere);
+    setSelectedCar(filtere[0]);
   };
   const onSubmit = () => {
     dispatch(setCar(selectedCar));

@@ -28,7 +28,7 @@ import {
   setDestinationLocation,
 } from "../redux/tripSlice";
 import { useNavigation } from "@react-navigation/native";
-const GOOGLE_API_KEY = "AIzaSyBSj4fI1IG3aT9p1pU0EOBfSb5MAdtNM44";
+
 const TripScreen = ({ route }) => {
   const user = useSelector((state) => state.user);
   const [search, setSearch] = useState({ term: "", fetchPredictions: false });

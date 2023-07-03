@@ -77,28 +77,28 @@ const TripMapScreen = ({ route }) => {
   }, []);
 
   const parseRoute = (routeResponse) => {
-    console.log(routeResponse);
     try {
       var rout = routeResponse.routes[0];
+      console.log("ruta este", rout.legs.length);
       var locations;
       var routa = [];
+      var statii = [];
       for (var index = 0; index < rout.legs.length; index++) {
         if (index < rout.legs.length - 1) {
-          setChargingStations([
-            ...chargingStations,
+          statii = [
+            ...statii,
             {
               summary: rout.legs[index].summary,
               coordinate: rout.legs[index + 1].points[0],
             },
-          ]);
-          console.log(rout.legs[index].summary);
+          ];
         }
-
         locations = rout.legs[index].points.map((element) => {
           return { latitude: element.latitude, longitude: element.longitude };
         });
         routa = [...routa, ...locations];
       }
+      setChargingStations(statii);
       setCoords(routa);
       setNumberOfCharges(rout.legs.length - 1);
       setStartMarker(routa[0]);
@@ -168,7 +168,7 @@ const TripMapScreen = ({ route }) => {
     var rute = {};
 
     var url = buildURL(routeOptions);
-    console.log(routeOptions.chargingModes);
+
     postData(url, routeOptions.chargingModes)
       .then((data) => parseRoute(data))
       .catch((err) => console.error("OPSS", err));
@@ -193,7 +193,7 @@ const TripMapScreen = ({ route }) => {
 
     const midX = (minLat + maxLat) / 2;
     const midY = (minLon + maxLon) / 2;
-    const deltaX = maxLat - minLat + 0.8;
+    const deltaX = maxLat - minLat;
     const deltaY = maxLon - minLon;
     setRegion({
       latitude: midX,
@@ -204,9 +204,10 @@ const TripMapScreen = ({ route }) => {
     mapRef.current.animateToRegion({
       latitude: midX,
       longitude: midY,
-      latitudeDelta: deltaX,
-      longitudeDelta: deltaY,
+      latitudeDelta: deltaX * 0.8,
+      longitudeDelta: deltaY * 0.8,
     });
+    console.log("charging", midX, midY, deltaX);
   };
   const resetTrip = () => {
     navigation.dispatch(
@@ -228,14 +229,19 @@ const TripMapScreen = ({ route }) => {
           textStyle={styles.spinnerTextStyle}
         />
       ) : (
-        <MapView ref={mapRef} style={styles.map} initialRegion={region}>
+        <MapView
+          ref={mapRef}
+          style={styles.map}
+          initialRegion={region}
+          region={region}
+        >
           <Polyline
             coordinates={coords}
             strokeColor="#009387"
             strokeWidth={5}
           />
           <Marker coordinate={startMarker} />
-          <Marker coordinate={endMarker} />
+
           {chargingStations &&
             chargingStations.map((station, index) => (
               <Marker
@@ -244,6 +250,7 @@ const TripMapScreen = ({ route }) => {
                 pinColor="green"
               />
             ))}
+          <Marker coordinate={endMarker} />
         </MapView>
       )}
       <BottomDrawer
